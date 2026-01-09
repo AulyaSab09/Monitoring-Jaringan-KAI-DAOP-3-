@@ -4,86 +4,88 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Monitor;
+use Symfony\Component\Process\Process;
 
 class CheckDeviceStatus extends Command
 {
     protected $signature = 'device:check';
-    protected $description = 'Cek ping realtime high-performance';
+    protected $description = 'Extreme Realtime Monitoring - Parallel Chunk Mode for 100+ Devices';
 
     public function handle()
     {
-        $this->info('STARTING REALTIME MONITORING (No Sleep Mode)...');
-        
-        // OPTIMASI 1: Load monitors sekali saja di luar loop jika daftarnya jarang berubah.
-        // Jika user nambah device baru, command harus di-restart. 
-        // Kalau butuh dynamic, pindahkan lagi ke dalam while, tapi itu nambah beban query.
-        $monitors = Monitor::all(); 
+        $this->info('STARTING EXTREME MONITORING (MySQL Optimized)...');
+        $this->info('Mode: Parallel Chunk (25 devices per batch)');
 
         while (true) {
-            $startTime = microtime(true); // Hitung waktu mulai siklus
+            $startTime = microtime(true);
+            
+            // 1. Refresh list dari database agar device baru langsung terbaca
+            $monitors = Monitor::all();
+            
+            // 2. Bagi menjadi beberapa kelompok (Chunk) agar CPU tidak overload
+            $chunks = $monitors->chunk(25); 
 
-            // Jika butuh refresh list device tanpa restart script, uncomment baris bawah ini:
-            // $monitors = Monitor::all(); 
+            foreach ($chunks as $chunk) {
+                $batch = [];
 
-            foreach ($monitors as $monitor) {
-                $ip = $monitor->ip_address;
-                
-                // Tetap 1000ms agar rule "3 digit" tetap valid.
-                // Masalah: Jika RTO, dia akan nge-freeze 1 detik per device yg mati.
-                $command = "ping -n 1 -w 1000 " . escapeshellarg($ip);
-                
-                $output = [];
-                $statusExec = 0;
-                exec($command, $output, $statusExec);
-                $outputString = implode(" ", $output);
-
-                $newStatus = 'Disconnected'; 
-                $newLatency = 0;
-
-                if (strpos($outputString, 'TTL=') !== false) {
-                    if (preg_match('/time[=<](\d+)/i', $outputString, $matches)) {
-                        $newLatency = (int)$matches[1];
-                    } else {
-                        $newLatency = 1; 
-                    }
-
-                    if ($newLatency >= 100) {
-                        $newStatus = 'Unstable';
-                    } else {
-                        $newStatus = 'Connected';
-                    }
+                // Lanch Ping secara paralel dalam satu batch
+                foreach ($chunk as $monitor) {
+                    // Pakai -n 1 agar tetap super cepat
+                    $process = new Process(["ping", "-n", "1", "-w", "1000", $monitor->ip_address]);
+                    $process->start();
+                    
+                    $batch[] = [
+                        'process' => $process,
+                        'monitor' => $monitor
+                    ];
                 }
 
-                // --- LOGIKA UPDATE HISTORY ---
-                // Kita sederhanakan akses array agar lebih cepat
-                $history = $monitor->history ?? [];
-                $history[] = ($newStatus !== 'Disconnected') ? $newLatency : 0;
-                
-                // Jaga array tetap 20 item
-                if (count($history) > 20) {
-                    array_shift($history); 
+                // Tunggu dan proses hasil batch ini
+                foreach ($batch as $item) {
+                    $process = $item['process'];
+                    $monitor = $item['monitor'];
+
+                    $process->wait(); // Menunggu proses ping selesai
+                    
+                    $outputString = $process->getOutput();
+                    $newStatus = 'Disconnected'; 
+                    $newLatency = 0;
+
+                    // Logika Penentuan Status
+                    if (strpos($outputString, 'TTL=') !== false) {
+                        if (preg_match('/time[=<](\d+)/i', $outputString, $matches)) {
+                            $newLatency = (int)$matches[1];
+                        } else {
+                            $newLatency = 1; 
+                        }
+
+                        // Rule Mentor: 1-2 digit Connected, 3 digit Unstable
+                        $newStatus = ($newLatency >= 100) ? 'Unstable' : 'Connected';
+                    }
+
+                    // Update History Array
+                    $history = $monitor->history ?? [];
+                    $history[] = ($newStatus !== 'Disconnected') ? $newLatency : 0;
+                    
+                    if (count($history) > 20) {
+                        array_shift($history); 
+                    }
+                    
+                    // Simpan ke MySQL
+                    $monitor->timestamps = false; 
+                    $monitor->status = $newStatus;
+                    $monitor->latency = $newLatency;
+                    $monitor->history = $history;
+                    $monitor->updated_at = now();
+                    $monitor->save();
                 }
-                
-                // OPTIMASI 2: Hanya update ke database JIKA ada perubahan status/latency signifikan
-                // atau setiap beberapa detik sekali. Tapi karena diminta realtime, kita hajar terus.
-                // Warning: SQLite bisa "Locked" kalau write terlalu cepat dan banyak.
-                
-                $monitor->timestamps = false; 
-                $monitor->status = $newStatus;
-                $monitor->latency = $newLatency;
-                $monitor->history = $history; 
-                $monitor->updated_at = now();
-                $monitor->save();
             }
 
-            $endTime = microtime(true);
-            $executionTime = round(($endTime - $startTime), 4);
-
-            // OPTIMASI 3: Hapus sleep(1).
-            // Ganti dengan usleep kecil (misal 50ms) cuma biar CPU gak 100% panas.
-            // 50000 microsecond = 0.05 detik.
-            $this->info('[' . now()->format('H:i:s') . "] Cycle: {$executionTime}s");
-            usleep(50000); 
+            $executionTime = round(microtime(true) - $startTime, 2);
+            $this->info('[' . now()->format('H:i:s') . "] Cycle done in {$executionTime}s. Devices: " . $monitors->count());
+            
+            // Jeda 0.1 detik agar loop tidak memakan 100% CPU
+            usleep(100000); 
         }
     }
 }

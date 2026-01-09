@@ -139,7 +139,7 @@
                                 const newVal = parseInt(newLatencyText);
                                 
                                 // Jalankan animasi angka (duration 500ms biar snappy)
-                                animateValue(latencyEl, oldVal, newVal, 500);
+                                animateValue(latencyEl, oldVal, newVal, 200);
 
                                 // 3. UPDATE STATUS DOT & TEXT
                                 document.getElementById('dot-' + id).className = newCard.querySelector('#dot-' + id).className;
