@@ -13,8 +13,8 @@ Route::get('/', function () {
 // Menangani: stasiun.index, stasiun.store, stasiun.destroy, dll.
 Route::resource('stasiun', StasiunController::class);
 
-// 3. Route Monitoring (AJAX Data)
-Route::get('/monitor/data', [MonitorController::class, 'getTableData'])->name('monitor.data');
+// 3. Route Monitoring (AJAX Data) - Menggunakan index yang sudah handle pengecekan route
+Route::get('/monitor/data', [MonitorController::class, 'index'])->name('monitor.data');
 
 // 4. Route Resource Monitoring (Preview)
 Route::resource('preview', MonitorController::class)->names([

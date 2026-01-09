@@ -7,94 +7,72 @@ use Illuminate\Http\Request;
 
 class MonitorController extends Controller
 {
+    /**
+     * Tampilkan Dashboard (Hanya Induk)
+     */
     public function index()
-{
-    // Hanya ambil data, TIDAK ADA proses ping disini.
-    // Jadi loading halaman akan instan/cepat.
-    $monitors = Monitor::orderBy('updated_at', 'desc')->get();
-    
-    return view('preview', compact('monitors'));
-}
-
-    // Halaman Form Tambah Data
-    public function create()
     {
-        return view('create');
+        // Ambil device INDUK saja (parent_id NULL), tapi bawa data anaknya (children)
+        $monitors = Monitor::whereNull('parent_id')
+            ->with('children') 
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // Jika request datang dari AJAX (auto-refresh dashboard)
+        if (request()->wantsJson() || request()->routeIs('monitor.data')) {
+            return view('components.monitor-cards', compact('monitors'))->render();
+        }
+
+        return view('preview', compact('monitors'));
     }
 
-    // Proses Simpan Data Baru
+    /**
+     * Tampilkan Form Tambah Device
+     * Bisa menerima parameter ?parent_id=123 jika diklik dari tombol +
+     */
+    public function create(Request $request)
+    {
+        $parentId = $request->query('parent_id');
+        $parentDevice = null;
+        
+        if ($parentId) {
+            $parentDevice = Monitor::find($parentId);
+        }
+
+        return view('monitor.create', compact('parentDevice'));
+    }
+
+    /**
+     * Simpan Device Baru ke Database
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'ip_address' => 'required|ipv4|unique:monitors,ip_address',
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'ip_address' => 'required|ip', // Validasi format IP
             'type' => 'required|string',
+            'location' => 'nullable|string',
+            'parent_id' => 'nullable|exists:monitors,id' // Validasi ID Induk
         ]);
 
-        Monitor::create([
-            'ip_address' => $request->ip_address,
-            'name' => $request->name,
-            'type' => $request->type,
-            'location' => $request->location,
-            'status' => 'Pending', // Status awal
-            'latency' => 0,
-        ]);
+        // Set default status agar tidak error
+        $validated['status'] = 'Pending';
+        $validated['latency'] = 0;
+        $validated['history'] = [];
 
-        return redirect('/preview')->with('success', 'IP Berhasil ditambahkan!');
+        Monitor::create($validated);
+
+        return redirect()->route('monitor.index')->with('success', 'Device berhasil ditambahkan!');
     }
 
-    // Halaman Form Edit
-    public function edit($id)
-    {
-        $monitor = Monitor::findOrFail($id);
-        return view('edit', compact('monitor'));
-    }
-
-    // Proses Update Data
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'ip_address' => 'required|ipv4',
-            'name' => 'required|string|max:255',
-            'type' => 'required|string',
-        ]);
-
-        $monitor = Monitor::findOrFail($id);
-        $monitor->update([
-            'ip_address' => $request->ip_address,
-            'name' => $request->name,
-            'type' => $request->type,
-            'location' => $request->location,
-            // Reset status agar dicek ulang
-            'status' => 'Pending', 
-            'latency' => 0
-        ]);
-
-        return redirect('/preview')->with('success', 'IP Berhasil diupdate!');
-    }
-
-    // Proses Hapus Data
+    /**
+     * Hapus Device
+     */
     public function destroy($id)
     {
         $monitor = Monitor::findOrFail($id);
         $monitor->delete();
 
-        return redirect('/preview')->with('success', 'Data dihapus!');
-    }
-
-    // Method baru untuk AJAX
-    public function getTableData()
-    {
-        $monitors = Monitor::orderBy('updated_at', 'desc')->get();
-        // Kita return view yang POTONGAN tadi (components/monitor-rows)
-        return view('components.monitor-cards', compact('monitors'));
-    }
-
-    // Method baru khusus untuk update realtime
-    public function getMonitorJson()
-    {
-        // Kita hanya butuh data penting untuk update UI
-        $data = \App\Models\Monitor::select('id', 'status', 'latency', 'history', 'ip_address')->get();
-        return response()->json($data);
+        return redirect()->back()->with('success', 'Device berhasil dihapus.');
     }
 }
