@@ -119,37 +119,111 @@
         const chart = new ApexCharts(document.querySelector("#chart-canvas"), options);
         chart.render();
 
-        // --- TOOLTIP HOVER ---
-        const tooltip = document.getElementById('chart-tooltip');
-        const ttStation = document.getElementById('tt-station');
-        const ttName = document.getElementById('tt-name');
-        const ttIp = document.getElementById('tt-ip');
-        const ttLatency = document.getElementById('tt-latency');
+            // --- 2. FUNGSI ANIMASI ANGKA (The "Game Feel") ---
+            function animateValue(obj, start, end, duration) {
+                if (start === end) return;
+                
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    
+                    // Hitung angka saat ini
+                    const currentVal = Math.floor(progress * (end - start) + start);
+                    obj.innerHTML = currentVal;
+                    
+                    // Ubah warna text secara dinamis saat angka naik
+                    if (currentVal >= 100) obj.classList.add('text-red-600');
+                    else if (currentVal >= 50) obj.classList.add('text-orange-500');
+                    else obj.classList.remove('text-red-600', 'text-orange-500');
 
-        document.body.addEventListener('mouseover', function(e) {
-            const card = e.target.closest('.monitor-card');
-            if (!card) return;
-
-            const historyAttr = card.getAttribute('data-history') || '[]';
-            const ip = card.getAttribute('data-ip') || '-';
-            const name = card.getAttribute('data-name') || '-';
-            const station = card.getAttribute('data-station') || '-';
-            const latency = card.getAttribute('data-latency') || '-';
-
-            ttStation.textContent = station;
-            ttName.textContent = name;
-            ttIp.textContent = ip;
-            ttLatency.textContent = latency + ' ms';
-
-            try {
-                const historyData = JSON.parse(historyAttr);
-                chart.updateSeries([{ data: historyData }]);
-            } catch (err) {
-                chart.updateSeries([{ data: [] }]);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        obj.innerHTML = end; // Pastikan angka akhir tepat
+                    }
+                };
+                window.requestAnimationFrame(step);
             }
 
-            tooltip.classList.remove('hidden');
-        });
+            // --- 3. SMART DOM UPDATE (Agar tidak blink) ---
+            function refreshTable() {
+                fetch("{{ route('monitor.data') }}")
+                    .then(response => response.text())
+                    .then(html => {
+                        // A. Parse HTML baru di memori (virtual DOM)
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newCards = doc.querySelectorAll('.monitor-card');
+
+                        // B. Loop setiap card baru
+                        newCards.forEach(newCard => {
+                            const id = newCard.getAttribute('data-id');
+                            const currentCard = document.getElementById('card-' + id);
+
+                            if (currentCard) {
+                                // 1. UPDATE CLASS PARENT (Untuk ganti warna border/bg jika status berubah)
+                                currentCard.className = newCard.className;
+                                currentCard.setAttribute('data-history', newCard.getAttribute('data-history'));
+
+                                // 2. ANIMASI ANGKA LATENCY
+                                const latencyEl = document.getElementById('latency-val-' + id);
+                                const newLatencyText = newCard.querySelector('#latency-val-' + id).innerText;
+                                const oldVal = parseInt(latencyEl.innerText);
+                                const newVal = parseInt(newLatencyText);
+                                
+                                // Jalankan animasi angka (duration 500ms biar snappy)
+                                animateValue(latencyEl, oldVal, newVal, 500);
+
+                                // 3. UPDATE STATUS DOT & TEXT
+                                document.getElementById('dot-' + id).className = newCard.querySelector('#dot-' + id).className;
+                                document.getElementById('badge-' + id).className = newCard.querySelector('#badge-' + id).className;
+                                document.getElementById('badge-' + id).innerText = newCard.querySelector('#badge-' + id).innerText;
+
+                            } else {
+                                // Jika card belum ada (device baru), tambahkan ke grid
+                                document.getElementById('monitor-card-grid').appendChild(newCard);
+                            }
+                        });
+                        
+                        // Hapus card yang sudah tidak ada di data baru (misal dihapus)
+                        const currentCards = document.querySelectorAll('.monitor-card');
+                        currentCards.forEach(card => {
+                            const existsInNew = doc.getElementById(card.id);
+                            if (!existsInNew) card.remove();
+                        });
+
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            }
+
+            // Jalankan refresh setiap 1 detik (1000ms) agar terasa realtime
+            setInterval(refreshTable, 1000);
+
+
+            // --- 4. LOGIKA HOVER TOOLTIP ---
+            const tooltip = document.getElementById('chart-tooltip');
+            
+            document.body.addEventListener('mouseover', function(e) {
+                const card = e.target.closest('.monitor-card');
+                if (card) {
+                    const historyAttr = card.getAttribute('data-history');
+                    const ip = card.getAttribute('data-ip');
+                    
+                    if (historyAttr) {
+                        try {
+                            const historyData = JSON.parse(historyAttr);
+                            // Update Chart
+                            chart.updateSeries([{ data: historyData }]);
+                            document.getElementById('tooltip-ip').innerText = ip;
+                            
+                            // Show Tooltip
+                            tooltip.style.display = 'block';
+                            tooltip.style.opacity = '1';
+                        } catch (err) { console.error(err); }
+                    }
+                }
+            });
 
         document.body.addEventListener('mousemove', function(e) {
             if (tooltip.classList.contains('hidden')) return;
