@@ -20,6 +20,9 @@ let audioUnlocked = false;
 // Simpan status sebelumnya untuk deteksi perubahan
 const previousStatus = new Map();
 
+// Track card yang sedang di-hover untuk update real-time tooltip
+let hoveredCardId = null;
+
 // Unlock audio context on first user interaction (required by browsers)
 function unlockAudio() {
     if (audioUnlocked) return;
@@ -288,10 +291,26 @@ function refreshData() {
                     checkStatusChange(id, newStatus);
                     oldCard.dataset.status = newStatus;
 
-                    // 4. Update Latency Angka
+                    // 4. Update Latency Angka + data-latency attribute
                     const oldLat = oldCard.querySelector('[id^="latency-val-"]');
                     const newLat = newCard.querySelector('[id^="latency-val-"]');
                     if (oldLat && newLat) oldLat.innerHTML = newLat.innerHTML;
+
+                    // Update data-latency attribute untuk tooltip
+                    oldCard.dataset.latency = newCard.dataset.latency;
+
+                    // Update tooltip jika card ini sedang di-hover
+                    if (hoveredCardId === id) {
+                        const ttLatencyEl = document.getElementById('tt-latency');
+                        if (ttLatencyEl) {
+                            ttLatencyEl.textContent = (newCard.dataset.latency || 0) + ' ms';
+                        }
+                        // Update chart juga
+                        try {
+                            const history = JSON.parse(newCard.dataset.history || '[]');
+                            chart.updateSeries([{ data: history }]);
+                        } catch (err) { }
+                    }
 
                     // 5. Update Badge & Dot
                     const oldBadge = oldCard.querySelector('[id^="badge-"]');
@@ -349,7 +368,7 @@ function updateStatusCounters() {
 }
 
 // Set Interval refresh (500ms = 0.5 detik)
-setInterval(refreshData, 500);
+setInterval(refreshData, 50);
 
 // Init awal
 window.onload = () => { setTimeout(drawTreeLines, 100); };
@@ -361,6 +380,7 @@ window.onresize = () => setTimeout(drawTreeLines, 100);
 const tooltip = document.getElementById('chart-tooltip');
 const ttStation = document.getElementById('tt-station');
 const ttName = document.getElementById('tt-name');
+const ttType = document.getElementById('tt-type');
 const ttIp = document.getElementById('tt-ip');
 const ttLatency = document.getElementById('tt-latency');
 
@@ -368,9 +388,13 @@ document.body.addEventListener('mouseover', e => {
     const card = e.target.closest('.monitor-card');
     if (!card) return;
 
+    // Track card yang di-hover
+    hoveredCardId = card.dataset.id;
+
     // Update tooltip content
     if (ttStation) ttStation.textContent = card.dataset.station || '-';
     if (ttName) ttName.textContent = card.dataset.name || '-';
+    if (ttType) ttType.textContent = card.dataset.type || '-';
     if (ttIp) ttIp.textContent = card.dataset.ip || '-';
     if (ttLatency) ttLatency.textContent = (card.dataset.latency || 0) + ' ms';
 
@@ -395,6 +419,7 @@ document.body.addEventListener('mousemove', e => {
 document.body.addEventListener('mouseout', e => {
     if (e.target.closest('.monitor-card') && tooltip) {
         tooltip.classList.add('hidden');
+        hoveredCardId = null; // Reset hovered card
     }
 });
 

@@ -14,6 +14,10 @@
             <span id="tt-name" class="font-medium">-</span>
         </div>
         <div class="flex justify-between">
+            <span class="text-gray-500">Type</span>
+            <span id="tt-type" class="font-medium">-</span>
+        </div>
+        <div class="flex justify-between">
             <span class="text-gray-500">IP</span>
             <span id="tt-ip" class="font-mono">-</span>
         </div>

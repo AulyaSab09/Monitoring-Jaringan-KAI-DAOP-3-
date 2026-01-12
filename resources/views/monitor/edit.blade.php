@@ -39,8 +39,9 @@
                     <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
                         <option value="Router" {{ $monitor->type == 'Router' ? 'selected' : '' }}>Router</option>
                         <option value="Switch" {{ $monitor->type == 'Switch' ? 'selected' : '' }}>Switch</option>
-                        <option value="Server" {{ $monitor->type == 'Server' ? 'selected' : '' }}>Server</option>
+                        <option value="Access Point" {{ $monitor->type == 'Access Point' ? 'selected' : '' }}>Access Point</option>
                         <option value="PC" {{ $monitor->type == 'PC' ? 'selected' : '' }}>PC / Client</option>
+                        <option value="CCTV" {{ $monitor->type == 'CCTV' ? 'selected' : '' }}>CCTV</option>
                     </select>
                 </div>
                 <div>

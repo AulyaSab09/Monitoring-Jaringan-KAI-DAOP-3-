@@ -42,6 +42,7 @@
                  data-ip="{{ $monitor->ip_address }}"
                  data-id="{{ $monitor->id }}"
                  data-name="{{ $monitor->name ?? '-' }}"
+                 data-type="{{ $monitor->type ?? '-' }}"
                  data-station="{{ $monitor->stasiun ?? $monitor->location ?? '-' }}"
                  data-latency="{{ $monitor->latency ?? 0 }}"
                  data-status="{{ $s['line'] }}">
