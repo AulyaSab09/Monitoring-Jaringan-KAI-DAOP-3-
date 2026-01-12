@@ -89,155 +89,9 @@
     @include('components.monitor-hover-tooltip')
 
     <script>
-        // --- AUTO REFRESH CARD ---
-        function refreshTable() {
-            fetch("{{ route('monitor.data') }}")
-                .then(r => r.text())
-                .then(html => {
-                    const grid = document.getElementById('monitor-card-grid');
-                    if (grid) grid.innerHTML = html;
-                })
-                .catch(console.error);
-        }
-        setInterval(refreshTable, 2000);
-
-        // --- SETUP APEXCHART (render sekali) ---
-        const options = {
-            series: [{ name: "Ping", data: [] }],
-            chart: {
-                type: 'area',
-                height: 90,
-                sparkline: { enabled: true },
-                animations: { enabled: false }
-            },
-            stroke: { curve: 'smooth', width: 2 },
-            fill: { opacity: 0.25 },
-            colors: ['#2563eb'],
-            tooltip: { enabled: false }
-        };
-
-        const chart = new ApexCharts(document.querySelector("#chart-canvas"), options);
-        chart.render();
-
-            // --- 2. FUNGSI ANIMASI ANGKA (The "Game Feel") ---
-            function animateValue(obj, start, end, duration) {
-                if (start === end) return;
-                
-                let startTimestamp = null;
-                const step = (timestamp) => {
-                    if (!startTimestamp) startTimestamp = timestamp;
-                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    
-                    // Hitung angka saat ini
-                    const currentVal = Math.floor(progress * (end - start) + start);
-                    obj.innerHTML = currentVal;
-                    
-                    // Ubah warna text secara dinamis saat angka naik
-                    if (currentVal >= 100) obj.classList.add('text-red-600');
-                    else if (currentVal >= 50) obj.classList.add('text-orange-500');
-                    else obj.classList.remove('text-red-600', 'text-orange-500');
-
-                    if (progress < 1) {
-                        window.requestAnimationFrame(step);
-                    } else {
-                        obj.innerHTML = end; // Pastikan angka akhir tepat
-                    }
-                };
-                window.requestAnimationFrame(step);
-            }
-
-            // --- 3. SMART DOM UPDATE (Agar tidak blink) ---
-            function refreshTable() {
-                fetch("{{ route('monitor.data') }}")
-                    .then(response => response.text())
-                    .then(html => {
-                        // A. Parse HTML baru di memori (virtual DOM)
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newCards = doc.querySelectorAll('.monitor-card');
-
-                        // B. Loop setiap card baru
-                        newCards.forEach(newCard => {
-                            const id = newCard.getAttribute('data-id');
-                            const currentCard = document.getElementById('card-' + id);
-
-                            if (currentCard) {
-                                // 1. UPDATE CLASS PARENT (Untuk ganti warna border/bg jika status berubah)
-                                currentCard.className = newCard.className;
-                                currentCard.setAttribute('data-history', newCard.getAttribute('data-history'));
-
-                                // 2. ANIMASI ANGKA LATENCY
-                                const latencyEl = document.getElementById('latency-val-' + id);
-                                const newLatencyText = newCard.querySelector('#latency-val-' + id).innerText;
-                                const oldVal = parseInt(latencyEl.innerText);
-                                const newVal = parseInt(newLatencyText);
-                                
-                                // Jalankan animasi angka (duration 500ms biar snappy)
-                                animateValue(latencyEl, oldVal, newVal, 500);
-
-                                // 3. UPDATE STATUS DOT & TEXT
-                                document.getElementById('dot-' + id).className = newCard.querySelector('#dot-' + id).className;
-                                document.getElementById('badge-' + id).className = newCard.querySelector('#badge-' + id).className;
-                                document.getElementById('badge-' + id).innerText = newCard.querySelector('#badge-' + id).innerText;
-
-                            } else {
-                                // Jika card belum ada (device baru), tambahkan ke grid
-                                document.getElementById('monitor-card-grid').appendChild(newCard);
-                            }
-                        });
-                        
-                        // Hapus card yang sudah tidak ada di data baru (misal dihapus)
-                        const currentCards = document.querySelectorAll('.monitor-card');
-                        currentCards.forEach(card => {
-                            const existsInNew = doc.getElementById(card.id);
-                            if (!existsInNew) card.remove();
-                        });
-
-                    })
-                    .catch(error => console.error('Error fetching data:', error));
-            }
-
-            // Jalankan refresh setiap 1 detik (1000ms) agar terasa realtime
-            setInterval(refreshTable, 1000);
-
-
-            // --- 4. LOGIKA HOVER TOOLTIP ---
-            const tooltip = document.getElementById('chart-tooltip');
-            
-            document.body.addEventListener('mouseover', function(e) {
-                const card = e.target.closest('.monitor-card');
-                if (card) {
-                    const historyAttr = card.getAttribute('data-history');
-                    const ip = card.getAttribute('data-ip');
-                    
-                    if (historyAttr) {
-                        try {
-                            const historyData = JSON.parse(historyAttr);
-                            // Update Chart
-                            chart.updateSeries([{ data: historyData }]);
-                            document.getElementById('tooltip-ip').innerText = ip;
-                            
-                            // Show Tooltip
-                            tooltip.style.display = 'block';
-                            tooltip.style.opacity = '1';
-                        } catch (err) { console.error(err); }
-                    }
-                }
-            });
-
-        document.body.addEventListener('mousemove', function(e) {
-            if (tooltip.classList.contains('hidden')) return;
-            tooltip.style.left = (e.clientX + 16) + 'px';
-            tooltip.style.top = (e.clientY + 16) + 'px';
-        });
-
-        document.body.addEventListener('mouseout', function(e) {
-            const card = e.target.closest('.monitor-card');
-            if (!card) return;
-            tooltip.classList.add('hidden');
-        });
-
-        // --- WIB CLOCK ---
+        // =========================
+        // 1) WIB CLOCK
+        // =========================
         function updateWIB() {
             const now = new Date();
 
@@ -262,6 +116,129 @@
         }
         updateWIB();
         setInterval(updateWIB, 1000);
+
+
+        // =========================
+        // 2) APEXCHART (render sekali)
+        // =========================
+        const chartOptions = {
+            series: [{ name: "Ping", data: [] }],
+            chart: {
+                type: 'area',
+                height: 80,
+                sparkline: { enabled: true },
+                animations: { enabled: false }
+            },
+            stroke: { curve: 'smooth', width: 2 },
+            fill: { opacity: 0.25 },
+            colors: ['#2563eb'],
+            tooltip: { enabled: false }
+        };
+
+        const chartEl = document.querySelector("#chart-canvas");
+        const chart = new ApexCharts(chartEl, chartOptions);
+        chart.render();
+
+
+        // =========================
+        // 3) TOOLTIP ELEMENTS
+        // =========================
+        const tooltip = document.getElementById('chart-tooltip');
+        const ttStation = document.getElementById('tt-station');
+        const ttName = document.getElementById('tt-name');
+        const ttIp = document.getElementById('tt-ip');
+        const ttLatency = document.getElementById('tt-latency');
+
+
+        // =========================
+        // 4) HOVER LOGIC
+        // =========================
+        document.body.addEventListener('mouseover', (e) => {
+            const card = e.target.closest('.monitor-card');
+            if (!card) return;
+
+            ttStation.textContent = card.dataset.station || '-';
+            ttName.textContent = card.dataset.name || '-';
+            ttIp.textContent = card.dataset.ip || '-';
+            ttLatency.textContent = (card.dataset.latency || 0) + ' ms';
+
+            try {
+                const history = JSON.parse(card.dataset.history || '[]');
+                chart.updateSeries([{ data: history }]);
+            } catch {
+                chart.updateSeries([{ data: [] }]);
+            }
+
+            tooltip.classList.remove('hidden');
+        });
+
+        document.body.addEventListener('mousemove', (e) => {
+            if (tooltip.classList.contains('hidden')) return;
+            tooltip.style.left = (e.clientX + 12) + 'px';
+            tooltip.style.top = (e.clientY + 12) + 'px';
+        });
+
+        document.body.addEventListener('mouseout', (e) => {
+            if (e.target.closest('.monitor-card')) {
+                tooltip.classList.add('hidden');
+            }
+        });
+
+
+        // =========================
+        // 5) SMART REFRESH (1x aja)
+        // =========================
+        function animateValue(obj, start, end, duration) {
+            if (start === end) return;
+
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentVal = Math.floor(progress * (end - start) + start);
+
+                obj.innerHTML = currentVal;
+
+                if (currentVal >= 100) obj.classList.add('text-red-600');
+                else if (currentVal >= 50) obj.classList.add('text-orange-500');
+                else obj.classList.remove('text-red-600', 'text-orange-500');
+
+                if (progress < 1) requestAnimationFrame(step);
+                else obj.innerHTML = end;
+            };
+            requestAnimationFrame(step);
+        }
+
+        function refreshCardsSmart() {
+            fetch("{{ route('monitor.data') }}")
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newCards = doc.querySelectorAll('.monitor-card');
+                    newCards.forEach(newCard => {
+                        const id = newCard.getAttribute('data-id');
+                        const currentCard = document.getElementById('card-' + id);
+
+                        if (currentCard) {
+                            // update seluruh isi card agar data-* ikut update (buat hover)
+                            currentCard.outerHTML = newCard.outerHTML;
+                        } else {
+                            document.getElementById('monitor-card-grid').appendChild(newCard);
+                        }
+                    });
+
+                    // hapus yang tidak ada di response
+                    document.querySelectorAll('.monitor-card').forEach(card => {
+                        const exists = doc.getElementById(card.id);
+                        if (!exists) card.remove();
+                    });
+                })
+                .catch(console.error);
+        }
+
+        setInterval(refreshCardsSmart, 1000);
     </script>
 </body>
 </html>
