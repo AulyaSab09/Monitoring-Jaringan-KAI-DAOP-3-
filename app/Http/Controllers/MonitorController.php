@@ -66,6 +66,39 @@ class MonitorController extends Controller
     }
 
     /**
+     * Tampilkan Form Edit Device
+     */
+    public function edit($id)
+    {
+        $monitor = Monitor::findOrFail($id);
+        
+        // Ambil semua device untuk pilihan parent (kecuali dirinya sendiri dan anaknya)
+        $availableParents = Monitor::where('id', '!=', $id)->get();
+        
+        return view('monitor.edit', compact('monitor', 'availableParents'));
+    }
+
+    /**
+     * Update Device di Database
+     */
+    public function update(Request $request, $id)
+    {
+        $monitor = Monitor::findOrFail($id);
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'ip_address' => 'required|ip',
+            'type' => 'required|string',
+            'location' => 'nullable|string',
+            'parent_id' => 'nullable|exists:monitors,id'
+        ]);
+
+        $monitor->update($validated);
+
+        return redirect()->route('monitor.index')->with('success', 'Device berhasil diupdate!');
+    }
+
+    /**
      * Hapus Device
      */
     public function destroy($id)
