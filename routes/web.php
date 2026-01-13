@@ -1,27 +1,38 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MonitorController;
-use App\Http\Controllers\StasiunController;
 
-// 1. Route Halaman Utama (Redirect ke Preview Monitor)
 Route::get('/', function () {
-    return redirect()->route('monitor.index');
+    return redirect()->route('preview');
 });
 
-// 2. Route Resource Stasiun
-// Menangani: stasiun.index, stasiun.store, stasiun.destroy, dll.
-Route::resource('stasiun', StasiunController::class);
+Route::middleware('auth')->group(function () {
 
-// 3. Route Monitoring (AJAX Data)
-Route::get('/monitor/data', [MonitorController::class, 'getTableData'])->name('monitor.data');
+    // PREVIEW / DASHBOARD
+    Route::get('/preview', [MonitorController::class, 'index'])->name('preview');
 
-// 4. Route Resource Monitoring (Preview)
-Route::resource('preview', MonitorController::class)->names([
-    'index' => 'monitor.index',
-    'create' => 'monitor.create',
-    'store' => 'monitor.store',
-    'edit' => 'monitor.edit',
-    'update' => 'monitor.update',
-    'destroy' => 'monitor.destroy',
-]);
+    // MONITOR CRUD
+    Route::get('/monitor', [MonitorController::class, 'index'])->name('monitor.index');
+    Route::get('/monitor/create', [MonitorController::class, 'create'])->name('monitor.create');
+    Route::post('/monitor', [MonitorController::class, 'store'])->name('monitor.store');
+    Route::delete('/monitor/{id}', [MonitorController::class, 'destroy'])
+    ->name('monitor.destroy');
+
+    // AUTO REFRESH DATA
+    Route::get('/monitor/data', [MonitorController::class, 'data'])->name('monitor.data');
+
+    //HISTORY
+    Route::get('/history', function () {
+        return view('history');
+    })->name('history');
+
+    // PROFILE
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+});
+
+require __DIR__.'/auth.php';

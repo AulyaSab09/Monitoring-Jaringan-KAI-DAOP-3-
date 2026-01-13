@@ -16,6 +16,15 @@ class MonitorController extends Controller
     return view('preview', compact('monitors'));
 }
 
+    public function data()
+{
+    $monitors = Monitor::all(); // atau sementara collect([])
+
+    return view('components.monitor-cards', [
+        'monitors' => $monitors,
+    ]);
+}
+
     // Halaman Form Tambah Data
     public function create()
     {
