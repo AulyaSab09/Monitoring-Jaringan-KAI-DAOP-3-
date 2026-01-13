@@ -9,6 +9,7 @@ class MonitorController extends Controller
 {
     /**
      * Tampilkan Dashboard (Hanya Induk)
+     * Loading halaman akan instan karena tidak ada proses ping disini
      */
     public function index()
     {
@@ -24,6 +25,19 @@ class MonitorController extends Controller
         }
 
         return view('preview', compact('monitors'));
+    }
+
+    /**
+     * Return data untuk komponen monitor-cards (AJAX partial)
+     */
+    public function data()
+    {
+        $monitors = Monitor::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('components.monitor-cards', compact('monitors'));
     }
 
     /**
@@ -107,5 +121,28 @@ class MonitorController extends Controller
         $monitor->delete();
 
         return redirect()->back()->with('success', 'Device berhasil dihapus.');
+    }
+
+    /**
+     * Method untuk AJAX - Return HTML tabel/cards
+     */
+    public function getTableData()
+    {
+        $monitors = Monitor::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+            
+        return view('components.monitor-cards', compact('monitors'));
+    }
+
+    /**
+     * Method khusus untuk update realtime via JSON
+     * Hanya return data penting untuk update UI
+     */
+    public function getMonitorJson()
+    {
+        $data = Monitor::select('id', 'status', 'latency', 'history', 'ip_address', 'parent_id')->get();
+        return response()->json($data);
     }
 }
