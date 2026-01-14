@@ -86,6 +86,9 @@
               >
                 <option value="Router">Router</option>
                 <option value="Switch">Switch</option>
+                <option value="Access Point">Access Point</option>
+                <option value="PC">PC / Client</option>
+                <option value="CCTV">CCTV</option>
               </select>
 
               <!-- custom arrow -->
@@ -96,6 +99,16 @@
               </span>
             </div>
           </div>
+
+          {{-- Hidden Parent ID (untuk fitur tambah cabang) --}}
+          @if(isset($parentDevice) && $parentDevice)
+            <input type="hidden" name="parent_id" value="{{ $parentDevice->id }}">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3">
+              <p class="text-sm text-blue-700">
+                <span class="font-semibold">Parent Device:</span> {{ $parentDevice->name }} ({{ $parentDevice->ip_address }})
+              </p>
+            </div>
+          @endif
 
           {{-- Lokasi + Kode Lokasi --}}
           <div class="grid grid-cols-2 gap-3">

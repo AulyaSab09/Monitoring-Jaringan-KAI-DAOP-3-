@@ -262,14 +262,13 @@ function drawTreeLines() {
 }
 
 // ==========================================
-// 5. REALTIME DATA UPDATE
+// 5. REALTIME DATA UPDATE (MODIFIED)
 // ==========================================
 const parser = new DOMParser();
 
 function refreshData() {
     if (isDragging) return;
 
-    // Tambahkan Timestamp (?t=) agar browser TIDAK melakukan cache
     fetch(monitorDataUrl + "?t=" + new Date().getTime())
         .then(r => r.text())
         .then(html => {
@@ -280,39 +279,20 @@ function refreshData() {
                 const oldCard = document.getElementById('card-' + id);
 
                 if (oldCard) {
-                    // 1. Update Tampilan Card (Warna BG & Border)
+                    // 1. Update Tampilan Dasar (Border/BG)
                     oldCard.className = newCard.className;
-
-                    // 2. Update Data History Grafik
                     oldCard.dataset.history = newCard.dataset.history;
 
-                    // 3. Update Status + NOTIFIKASI SUARA
+                    // 2. Cek Status & Mainkan Suara
                     const newStatus = newCard.dataset.status;
                     checkStatusChange(id, newStatus);
                     oldCard.dataset.status = newStatus;
 
-                    // 4. Update Latency Angka + data-latency attribute
+                    // 3. Update Text Latency & Badge
                     const oldLat = oldCard.querySelector('[id^="latency-val-"]');
                     const newLat = newCard.querySelector('[id^="latency-val-"]');
                     if (oldLat && newLat) oldLat.innerHTML = newLat.innerHTML;
 
-                    // Update data-latency attribute untuk tooltip
-                    oldCard.dataset.latency = newCard.dataset.latency;
-
-                    // Update tooltip jika card ini sedang di-hover
-                    if (hoveredCardId === id) {
-                        const ttLatencyEl = document.getElementById('tt-latency');
-                        if (ttLatencyEl) {
-                            ttLatencyEl.textContent = (newCard.dataset.latency || 0) + ' ms';
-                        }
-                        // Update chart juga
-                        try {
-                            const history = JSON.parse(newCard.dataset.history || '[]');
-                            chart.updateSeries([{ data: history }]);
-                        } catch (err) { }
-                    }
-
-                    // 5. Update Badge & Dot
                     const oldBadge = oldCard.querySelector('[id^="badge-"]');
                     const newBadge = newCard.querySelector('[id^="badge-"]');
                     if (oldBadge && newBadge) {
@@ -324,24 +304,44 @@ function refreshData() {
                     const newDot = newCard.querySelector('[id^="dot-"]');
                     if (oldDot && newDot) oldDot.className = newDot.className;
 
-                    // 6. Update Indikator Cabang
+                    // Update Router LEDs (ambil dari div router-leds)
+                    const oldRouterLeds = oldCard.querySelector('.router-leds');
+                    const newRouterLeds = newCard.querySelector('.router-leds');
+                    if (oldRouterLeds && newRouterLeds) {
+                        oldRouterLeds.innerHTML = newRouterLeds.innerHTML;
+                    }
+
+                    // Update Access Point LED (Single LED)
+                    const oldApLed = oldCard.querySelector('.ap-led');
+                    const newApLed = newCard.querySelector('.ap-led');
+                    if (oldApLed && newApLed) {
+                        oldApLed.className = newApLed.className;
+                    }
+
+                    // 5. Update Warning Cabang
                     const oldWarn = document.getElementById('badge-hidden-' + id);
                     const newWarn = doc.getElementById('badge-hidden-' + id);
-                    if (oldWarn && newWarn) {
-                        oldWarn.className = newWarn.className;
+                    if (oldWarn && newWarn) oldWarn.className = newWarn.className;
+
+                    // Update Tooltip Data Realtime
+                    oldCard.dataset.latency = newCard.dataset.latency;
+                    if (hoveredCardId === id) {
+                        // Update chart tooltip kalau sedang dihover
+                        try {
+                            const history = JSON.parse(newCard.dataset.history || '[]');
+                            chart.updateSeries([{ data: history }]);
+                            const ttLatencyEl = document.getElementById('tt-latency');
+                            if (ttLatencyEl) ttLatencyEl.textContent = (newCard.dataset.latency || 0) + ' ms';
+                        } catch (err) { }
                     }
                 }
             });
 
-            // 7. Update Status Counters (Total, UP, WARNING, DOWN)
             updateStatusCounters();
-
-            // Gambar ulang garis SETELAH semua data status diperbarui
             if (!isDragging) requestAnimationFrame(drawTreeLines);
         })
         .catch(err => console.error("Gagal refresh:", err));
 }
-
 // Fungsi untuk update status counters secara real-time
 function updateStatusCounters() {
     const cards = document.querySelectorAll('.monitor-card');
