@@ -4,40 +4,81 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Laravel') }}</title>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <style>
+        .main-container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
+                        url("{{ asset('assets/images/lb_kai.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        .main-container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("{{ asset('assets/images/circuit_jaringan.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .outer-frame {
+            position: relative;
+            width: 580px;
+            height: 580px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .cable-animation {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top: 4px solid #38bdf8;
+            border-bottom: 4px solid #f97316;
+            animation: rotate-cable 8s linear infinite;
+        }
+
+        @keyframes rotate-cable {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .login-circle {
+            width: 480px;
+            height: 480px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 40px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.6);
+            z-index: 20;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="min-h-screen flex">
-
-        <!-- LEFT : LOGIN FORM -->
-        <div class="w-full md:w-1/2 flex items-center justify-center bg-white">
-            <div class="w-full max-w-md px-8">
-                {{ $slot }}
-            </div>
+<body class="main-container">
+    <div class="outer-frame">
+        <div class="cable-animation"></div>
+        <div class="login-circle">
+            {{ $slot }}
         </div>
-
-        <!-- RIGHT : INFO / BRANDING -->
-        <div class="hidden md:flex w-1/2 bg-indigo-600 text-white items-center justify-center relative">
-            <div class="max-w-md px-10 text-center">
-                <h2 class="text-3xl font-bold mb-4">
-                    Effortlessly manage your network
-                </h2>
-                <!-- <p class="text-indigo-100 mb-6">
-                    Login untuk mengakses sistem Monitoring Jaringan KAI DAOP 3 secara real-time dan terpusat.
-                </p> -->
-
-                <!-- Dummy preview box -->
-                <!-- <div class="bg-white/10 rounded-xl p-6">
-                    <p class="text-sm text-indigo-100">
-                        ✔ Monitoring status jaringan  
-                        <br>✔ Latency & uptime  
-                        <br>✔ Dashboard terpusat
-                    </p>
-                </div> -->
-            </div>
-        </div>
-
     </div>
 </body>
 </html>
