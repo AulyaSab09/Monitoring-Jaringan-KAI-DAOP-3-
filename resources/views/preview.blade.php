@@ -7,8 +7,10 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-        
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
         <style>
             /* === CORE STYLES === */
             .tree-container {
@@ -137,8 +139,8 @@
             @endif
 
             {{-- HEADER SECTION --}}
-            <header class="mb-6">
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+            <header class="mb-4">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-3">
                     {{-- BARIS 1 - KIRI: Logo & Judul --}}
                     <div class="flex items-center gap-4">
                         <img src="{{ asset('assets/images/kai_logo.png') }}" alt="KAI" class="h-24 w-auto" />
@@ -154,7 +156,7 @@
                         <div id="timeText" class="text-gray-900 text-3xl font-bold"></div>
                     </div>
 
-                    {{-- BARIS 2 - KIRI: Status Counter (TAMBAHAN ANDA) --}}
+                    {{-- BARIS 2 - KIRI: Status Counter --}}
                     <div class="flex flex-wrap items-center gap-3">
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-200 text-gray-800">
                             Total: <span id="counter-total" class="ml-1 font-bold">{{ $total ?? 0 }}</span>

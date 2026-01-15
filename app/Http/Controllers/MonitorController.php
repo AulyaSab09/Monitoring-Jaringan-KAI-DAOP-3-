@@ -7,142 +7,103 @@ use Illuminate\Http\Request;
 
 class MonitorController extends Controller
 {
-    /**
-     * Tampilkan Dashboard (Hanya Induk)
-     * Loading halaman akan instan karena tidak ada proses ping disini
-     */
     public function index()
-    {
-        // Ambil device INDUK saja (parent_id NULL), tapi bawa data anaknya (children)
-        $monitors = Monitor::whereNull('parent_id')
-            ->with('children') 
-            ->orderBy('updated_at', 'desc')
-            ->get();
+{
+    // Hanya ambil data, TIDAK ADA proses ping disini.
+    // Jadi loading halaman akan instan/cepat.
+    $monitors = Monitor::orderBy('updated_at', 'desc')->get();
+    
+    return view('preview', compact('monitors'));
+}
 
-        // Jika request datang dari AJAX (auto-refresh dashboard)
-        if (request()->wantsJson() || request()->routeIs('monitor.data')) {
-            return view('components.monitor-cards', compact('monitors'))->render();
-        }
-
-        return view('preview', compact('monitors'));
-    }
-
-    /**
-     * Return data untuk komponen monitor-cards (AJAX partial)
-     */
     public function data()
-    {
-        $monitors = Monitor::whereNull('parent_id')
-            ->with('children')
-            ->orderBy('updated_at', 'desc')
-            ->get();
+{
+    $monitors = Monitor::all(); // atau sementara collect([])
 
-        return view('components.monitor-cards', compact('monitors'));
+    return view('components.monitor-cards', [
+        'monitors' => $monitors,
+    ]);
+}
+
+    // Halaman Form Tambah Data
+    public function create()
+    {
+        return view('create');
     }
 
-    /**
-     * Tampilkan Form Tambah Device
-     * Bisa menerima parameter ?parent_id=123 jika diklik dari tombol +
-     */
-    public function create(Request $request)
-    {
-        $parentId = $request->query('parent_id');
-        $parentDevice = null;
-        
-        if ($parentId) {
-            $parentDevice = Monitor::find($parentId);
-        }
-
-        return view('monitor.create', compact('parentDevice'));
-    }
-
-    /**
-     * Simpan Device Baru ke Database
-     */
+    // Proses Simpan Data Baru
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
+            'ip_address' => 'required|ipv4|unique:monitors,ip_address',
             'name' => 'required|string|max:255',
-            'ip_address' => 'required|ip', // Validasi format IP
             'type' => 'required|string',
-            'location' => 'nullable|string',
-            'parent_id' => 'nullable|exists:monitors,id' // Validasi ID Induk
         ]);
 
-        // Set default status agar tidak error
-        $validated['status'] = 'Pending';
-        $validated['latency'] = 0;
-        $validated['history'] = [];
+        Monitor::create([
+            'ip_address' => $request->ip_address,
+            'name' => $request->name,
+            'type' => $request->type,
+            'location' => $request->location,
+            'status' => 'Pending', // Status awal
+            'latency' => 0,
+        ]);
 
-        Monitor::create($validated);
-
-        return redirect()->route('monitor.index')->with('success', 'Device berhasil ditambahkan!');
+        return redirect('/preview')->with('success', 'IP Berhasil ditambahkan!');
     }
 
-    /**
-     * Tampilkan Form Edit Device
-     */
+    // Halaman Form Edit
     public function edit($id)
     {
         $monitor = Monitor::findOrFail($id);
-        
-        // Ambil semua device untuk pilihan parent (kecuali dirinya sendiri dan anaknya)
-        $availableParents = Monitor::where('id', '!=', $id)->get();
-        
-        return view('monitor.edit', compact('monitor', 'availableParents'));
+        return view('edit', compact('monitor'));
     }
 
-    /**
-     * Update Device di Database
-     */
+    // Proses Update Data
     public function update(Request $request, $id)
     {
-        $monitor = Monitor::findOrFail($id);
-        
-        $validated = $request->validate([
+        $request->validate([
+            'ip_address' => 'required|ipv4',
             'name' => 'required|string|max:255',
-            'ip_address' => 'required|ip',
             'type' => 'required|string',
-            'location' => 'nullable|string',
-            'parent_id' => 'nullable|exists:monitors,id'
         ]);
 
-        $monitor->update($validated);
+        $monitor = Monitor::findOrFail($id);
+        $monitor->update([
+            'ip_address' => $request->ip_address,
+            'name' => $request->name,
+            'type' => $request->type,
+            'location' => $request->location,
+            // Reset status agar dicek ulang
+            'status' => 'Pending', 
+            'latency' => 0
+        ]);
 
-        return redirect()->route('monitor.index')->with('success', 'Device berhasil diupdate!');
+        return redirect('/preview')->with('success', 'IP Berhasil diupdate!');
     }
 
-    /**
-     * Hapus Device
-     */
+    // Proses Hapus Data
     public function destroy($id)
     {
         $monitor = Monitor::findOrFail($id);
         $monitor->delete();
 
-        return redirect()->back()->with('success', 'Device berhasil dihapus.');
+        return redirect('/preview')->with('success', 'Data dihapus!');
     }
 
-    /**
-     * Method untuk AJAX - Return HTML tabel/cards
-     */
+    // Method baru untuk AJAX
     public function getTableData()
     {
-        $monitors = Monitor::whereNull('parent_id')
-            ->with('children')
-            ->orderBy('updated_at', 'desc')
-            ->get();
-            
+        $monitors = Monitor::orderBy('updated_at', 'desc')->get();
+        // Kita return view yang POTONGAN tadi (components/monitor-rows)
         return view('components.monitor-cards', compact('monitors'));
     }
 
-    /**
-     * Method khusus untuk update realtime via JSON
-     * Hanya return data penting untuk update UI
-     */
+    // Method baru khusus untuk update realtime
     public function getMonitorJson()
     {
-        $data = Monitor::select('id', 'status', 'latency', 'history', 'ip_address', 'parent_id')->get();
+        // Kita hanya butuh data penting untuk update UI
+        $data = \App\Models\Monitor::select('id', 'status', 'latency', 'history', 'ip_address')->get();
         return response()->json($data);
     }
 }
