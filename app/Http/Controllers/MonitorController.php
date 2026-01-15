@@ -8,27 +8,45 @@ use Illuminate\Http\Request;
 class MonitorController extends Controller
 {
     public function index()
-{
-    // Hanya ambil data, TIDAK ADA proses ping disini.
-    // Jadi loading halaman akan instan/cepat.
-    $monitors = Monitor::orderBy('updated_at', 'desc')->get();
-    
-    return view('preview', compact('monitors'));
-}
+    {
+        // Ambil hanya device parent (tanpa parent_id) dengan children-nya
+        // untuk tampilan tree yang proper
+        $monitors = Monitor::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+        
+        // Hitung statistik untuk header - Optimized
+        $total = Monitor::count();
+        $up = Monitor::where('status', 'Connected')->count();
+        $warning = Monitor::where('status', 'Unstable')->count();
+        $down = Monitor::where('status', 'Disconnected')->count();
+        
+        return view('preview', compact('monitors', 'total', 'up', 'warning', 'down'));
+    }
 
     public function data()
-{
-    $monitors = Monitor::all(); // atau sementara collect([])
+    {
+        // Ambil hanya device parent (tanpa parent_id) dengan children-nya
+        // untuk tampilan tree yang proper (sama seperti index)
+        $monitors = Monitor::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
-    return view('components.monitor-cards', [
-        'monitors' => $monitors,
-    ]);
-}
+        return view('components.monitor-cards', [
+            'monitors' => $monitors,
+        ]);
+    }
 
     // Halaman Form Tambah Data
     public function create()
     {
-        return view('create');
+        $parentDevice = null;
+        if (request()->has('parent_id')) {
+            $parentDevice = Monitor::find(request('parent_id'));
+        }
+        return view('monitor.create', compact('parentDevice'));
     }
 
     // Proses Simpan Data Baru
@@ -45,18 +63,23 @@ class MonitorController extends Controller
             'name' => $request->name,
             'type' => $request->type,
             'location' => $request->location,
+            'kode_lokasi' => $request->kode_lokasi,
+            'parent_id' => $request->parent_id, // Untuk fitur tambah cabang
             'status' => 'Pending', // Status awal
             'latency' => 0,
         ]);
 
-        return redirect('/preview')->with('success', 'IP Berhasil ditambahkan!');
+        return redirect('/preview')->with('success', 'Device berhasil ditambahkan!');
     }
 
     // Halaman Form Edit
     public function edit($id)
     {
         $monitor = Monitor::findOrFail($id);
-        return view('edit', compact('monitor'));
+        // Ambil semua device lain untuk pilihan parent (exclude device ini sendiri dan children-nya)
+        // Optimized: Only select id and name
+        $allMonitors = Monitor::where('id', '!=', $id)->select('id', 'name')->get();
+        return view('monitor.edit', compact('monitor', 'allMonitors'));
     }
 
     // Proses Update Data
@@ -74,12 +97,14 @@ class MonitorController extends Controller
             'name' => $request->name,
             'type' => $request->type,
             'location' => $request->location,
+            'kode_lokasi' => $request->kode_lokasi,
+            'parent_id' => $request->parent_id ?: null, // Update parent device
             // Reset status agar dicek ulang
             'status' => 'Pending', 
             'latency' => 0
         ]);
 
-        return redirect('/preview')->with('success', 'IP Berhasil diupdate!');
+        return redirect('/preview')->with('success', 'Device berhasil diupdate!');
     }
 
     // Proses Hapus Data

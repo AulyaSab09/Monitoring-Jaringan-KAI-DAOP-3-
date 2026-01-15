@@ -13,12 +13,31 @@ class Monitor extends Model
         'name',
         'type',
         'location',
+        'kode_lokasi',
         'ip_address',
         'status',
         'latency',
+        'parent_id',
+        'history',
     ];
-    protected $guarded = [];
+
     protected $casts = [
         'history' => 'array',
     ];
+
+    /**
+     * Relasi ke parent device
+     */
+    public function parent()
+    {
+        return $this->belongsTo(Monitor::class, 'parent_id');
+    }
+
+    /**
+     * Relasi ke children devices
+     */
+    public function children()
+    {
+        return $this->hasMany(Monitor::class, 'parent_id');
+    }
 }

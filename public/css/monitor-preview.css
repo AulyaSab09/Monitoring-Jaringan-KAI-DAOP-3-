@@ -1,0 +1,702 @@
+/* === CORE STYLES === */
+.tree-container {
+    position: relative;
+    overflow: hidden;
+    padding: 2rem 1rem;
+    height: calc(100vh - 240px);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
+    border-radius: 1rem;
+    cursor: grab;
+}
+
+.tree-container:active {
+    cursor: grabbing;
+}
+
+.tree-viewport {
+    transform-origin: 0 0;
+    min-width: max-content;
+    position: relative;
+    padding: 100px;
+}
+
+.tree-lines-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.tree-line {
+    stroke: #cbd5e1;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke 0.4s ease;
+}
+
+.tree-line.status-connected {
+    stroke: #10b981;
+}
+
+.tree-line.status-disconnected {
+    stroke: #ef4444;
+    stroke-dasharray: 6, 4;
+}
+
+.tree-line.status-unstable {
+    stroke: #f97316;
+}
+
+.tree-line.status-pending {
+    stroke: #cbd5e1;
+}
+
+.tree-wrapper {
+    display: flex;
+    gap: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+.tree-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.tree-node-card {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 5rem;
+}
+
+.tree-children {
+    display: flex;
+    gap: 3rem;
+    margin-top: 0.5rem;
+}
+
+/* === IMPROVED DEVICE STYLES === */
+
+/* 1. ROUTER - Modern Design dengan Glass Effect */
+.device-router {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: visible;
+}
+
+.router-body {
+    position: relative;
+    padding: 16px;
+}
+
+.router-antenna {
+    position: absolute;
+    top: -28px;
+    width: 6px;
+    height: 32px;
+    background: linear-gradient(180deg, #64748b 0%, #94a3b8 100%);
+    border-radius: 3px 3px 0 0;
+    z-index: -1;
+}
+
+.router-antenna.left {
+    left: 24px;
+    transform: rotate(-15deg);
+}
+
+.router-antenna.right {
+    right: 24px;
+    transform: rotate(15deg);
+}
+
+.router-antenna::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 8px;
+    background: #475569;
+    border-radius: 3px 3px 0 0;
+}
+
+.router-leds {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    justify-content: center;
+}
+
+.led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.led::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+}
+
+/* 2. SWITCH - Rack Mount Style */
+.device-switch {
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    min-width: 300px;
+}
+
+.switch-body {
+    padding: 16px;
+    position: relative;
+}
+
+.switch-ears {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 75%;
+    background: #cbd5e1;
+    transform: translateY(-50%);
+    border-radius: 2px;
+}
+
+.switch-ears.left {
+    left: -12px;
+    border-right: 2px solid #94a3b8;
+    box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.switch-ears.right {
+    right: -12px;
+    border-left: 2px solid #94a3b8;
+    box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.switch-ears::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #64748b;
+    border-radius: 50%;
+    box-shadow: 0 16px 0 #64748b, 0 32px 0 #64748b;
+}
+
+.port-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.port {
+    height: 12px;
+    background: #1e293b;
+    border-radius: 2px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.port.active::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 3px;
+    height: 3px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #22c55e;
+    animation: port-blink 2s infinite;
+}
+
+@keyframes port-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* 3. SERVER - Datacenter Style */
+.device-server {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 20%, #e2e8f0 100%);
+    border-radius: 8px;
+    border: 2px solid #94a3b8;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.server-body {
+    padding: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+.server-grill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 8px,
+            rgba(100, 116, 139, 0.15) 8px,
+            rgba(100, 116, 139, 0.15) 10px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.server-led-strip {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.server-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
+}
+
+/* 4. PC - Monitor Design */
+.device-pc {
+    background: #ffffff;
+    border: 3px solid #1e293b;
+    border-radius: 12px 12px 8px 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    position: relative;
+}
+
+.pc-screen {
+    padding: 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 8px 8px 0 0;
+    min-height: 140px;
+    position: relative;
+}
+
+.pc-bezel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: #1e293b;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pc-power-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+}
+
+.pc-stand {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 18px;
+    background: linear-gradient(180deg, #475569 0%, #334155 100%);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
+    border-radius: 0 0 4px 4px;
+}
+
+.pc-base {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 6px;
+    background: #1e293b;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 5. ACCESS POINT - Modern Circular */
+.device-ap {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 50%;
+    border: 3px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    width: 200px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.ap-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.ap-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid;
+    border-radius: 50%;
+    opacity: 0;
+    animation: ap-wave 3s infinite;
+}
+
+.ap-ring:nth-child(1) {
+    width: 100px;
+    height: 100px;
+    border-color: #10b981;
+    animation-delay: 0s;
+}
+
+.ap-ring:nth-child(2) {
+    width: 140px;
+    height: 140px;
+    border-color: #10b981;
+    animation-delay: 1s;
+}
+
+.ap-ring:nth-child(3) {
+    width: 180px;
+    height: 180px;
+    border-color: #10b981;
+    animation-delay: 2s;
+}
+
+@keyframes ap-wave {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+.ap-center {
+    position: relative;
+    z-index: 2;
+}
+
+.ap-led {
+    width: 12px;
+    height: 12px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #22c55e;
+    margin: 0 auto 12px;
+    animation: pulse 2s infinite;
+}
+
+/* 6. CCTV - Security Camera */
+.device-cctv {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    border-radius: 12px 12px 50% 50%;
+    border: 2px solid #cbd5e1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.cctv-body {
+    padding: 16px 16px 32px;
+    position: relative;
+}
+
+.cctv-lens {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 48px;
+    background: radial-gradient(circle at 35% 35%, #64748b 0%, #1e293b 40%, #000 100%);
+    border-radius: 50%;
+    border: 3px solid #94a3b8;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.cctv-lens::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
+.cctv-led {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 6px;
+    height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ef4444;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* === STATUS INDICATORS === */
+.status-badge-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    animation: status-pulse 2s infinite;
+}
+
+.status-dot.connected {
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+}
+
+.status-dot.unstable {
+    background: #f97316;
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+}
+
+.status-dot.disconnected {
+    background: #ef4444;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+}
+
+@keyframes status-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+.status-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.status-text.connected {
+    color: #15803d;
+}
+
+.status-text.unstable {
+    color: #c2410c;
+}
+
+.status-text.disconnected {
+    color: #991b1b;
+}
+
+/* === CARD CONTENT === */
+.device-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.device-type {
+    font-size: 10px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.location-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #1e293b;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.latency-display {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.latency-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: #0f172a;
+}
+
+.latency-unit {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* UTILS */
+.hover-add-btn {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: 3px solid white;
+    border-radius: 50%;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+    cursor: pointer;
+}
+
+.tree-node-card:hover .hover-add-btn {
+    transform: translateX(-50%) scale(1);
+}
+
+.hover-add-btn:hover {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+/* WARNING ANIMATIONS */
+.child-down-warning {
+    animation: pulse-red 1.5s infinite;
+    border-color: #ef4444 !important;
+    border-width: 3px !important;
+}
+
+.child-unstable-warning {
+    animation: pulse-orange 1.5s infinite;
+    border-color: #f97316 !important;
+    border-width: 3px !important;
+}
+
+@keyframes pulse-red {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+}
+
+@keyframes pulse-orange {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+    }
+}

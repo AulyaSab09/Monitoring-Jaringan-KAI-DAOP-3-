@@ -304,7 +304,11 @@ function refreshData() {
                     const newDot = newCard.querySelector('[id^="dot-"]');
                     if (oldDot && newDot) oldDot.className = newDot.className;
 
-                    // Update Router LEDs (ambil dari div router-leds)
+                    // ============================================================
+                    // 4. FIX UTAMA: UPDATE VISUAL LITERAL DEVICE (Router/AP LEDs)
+                    // ============================================================
+
+                    // Update Router LEDs (Kita copy satu blok div router-leds)
                     const oldRouterLeds = oldCard.querySelector('.router-leds');
                     const newRouterLeds = newCard.querySelector('.router-leds');
                     if (oldRouterLeds && newRouterLeds) {
@@ -317,6 +321,7 @@ function refreshData() {
                     if (oldApLed && newApLed) {
                         oldApLed.className = newApLed.className;
                     }
+                    // ============================================================
 
                     // 5. Update Warning Cabang
                     const oldWarn = document.getElementById('badge-hidden-' + id);
@@ -368,7 +373,7 @@ function updateStatusCounters() {
 }
 
 // Set Interval refresh (500ms = 0.5 detik)
-setInterval(refreshData, 50);
+setInterval(refreshData, 500);
 
 // Init awal
 window.onload = () => { setTimeout(drawTreeLines, 100); };
