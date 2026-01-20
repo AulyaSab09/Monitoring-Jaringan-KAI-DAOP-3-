@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
 
     // HISTORY
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+    Route::get('/history/data', [HistoryController::class, 'getTableData'])->name('history.data');
+    Route::delete('/history/reset', [HistoryController::class, 'reset'])->name('history.reset');
 });
 
 require __DIR__.'/auth.php';

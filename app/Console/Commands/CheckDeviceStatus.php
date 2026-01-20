@@ -59,9 +59,34 @@ class CheckDeviceStatus extends Command
                             $newLatency = 1; 
                         }
 
-                        // Rule Mentor: 1-2 digit Connected, 3 digit Unstable
+                    // Rule Mentor: 1-2 digit Connected, 3 digit Unstable
                         $newStatus = ($newLatency >= 100) ? 'Unstable' : 'Connected';
                     }
+
+                    // --- LOGIC INCIDENT RECORDING (HISTORY) ---
+                    $oldStatus = $monitor->status;
+                    
+                    // 1. Detect DOWN (Online -> Disconnected)
+                    if ($newStatus === 'Disconnected' && $oldStatus !== 'Disconnected') {
+                        \App\Models\Incident::create([
+                            'monitor_id' => $monitor->id,
+                            'down_at' => now(),
+                        ]);
+                    }
+
+                    // 2. Detect UP (Disconnected -> Online)
+                    if ($newStatus !== 'Disconnected' && $oldStatus === 'Disconnected') {
+                        // Cari incident terakhir yang belum close
+                        $lastIncident = \App\Models\Incident::where('monitor_id', $monitor->id)
+                            ->whereNull('up_at')
+                            ->latest('down_at')
+                            ->first();
+                        
+                        if ($lastIncident) {
+                            $lastIncident->update(['up_at' => now()]);
+                        }
+                    }
+                    // ------------------------------------------
 
                     // Update History Array
                     $history = $monitor->history ?? [];

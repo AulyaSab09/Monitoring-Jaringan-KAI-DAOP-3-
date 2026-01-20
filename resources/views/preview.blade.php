@@ -139,7 +139,14 @@
                     <button onclick="zoomIn()" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-blue-500 hover:text-white rounded-lg transition-colors font-bold text-gray-600" title="Zoom In">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                     </button>
-                    <span id="zoom-level" class="text-[10px] font-bold text-gray-500 text-center">100%</span>
+                    <div class="relative flex items-center justify-center">
+                        <input type="number" id="zoom-input" value="100" min="10" max="200" 
+                            class="w-10 text-center text-[10px] font-bold text-gray-500 bg-transparent border-none p-0 focus:ring-0 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                            onchange="setZoom(this.value)"
+                            onkeydown="if(event.key === 'Enter') setZoom(this.value)"
+                        >
+                        <span class="absolute right-0 text-[8px] text-gray-400 font-bold pointer-events-none">%</span>
+                    </div>
                     <button onclick="zoomOut()" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-blue-500 hover:text-white rounded-lg transition-colors font-bold text-gray-600" title="Zoom Out">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"></path></svg>
                     </button>

@@ -12,8 +12,10 @@ class MonitorController extends Controller
         // Ambil hanya device parent (tanpa parent_id) dengan children-nya
         // untuk tampilan tree yang proper
         $monitors = Monitor::whereNull('parent_id')
-            ->with('children')
-            ->orderBy('updated_at', 'desc')
+            ->with(['children' => function($q) {
+                $q->orderBy('id', 'asc');
+            }, 'children.latestIncident', 'latestIncident']) // Load latestIncident untuk parent & children
+            ->orderBy('id', 'asc')
             ->get();
         
         // Hitung statistik untuk header - Optimized
@@ -30,8 +32,10 @@ class MonitorController extends Controller
         // Ambil hanya device parent (tanpa parent_id) dengan children-nya
         // untuk tampilan tree yang proper (sama seperti index)
         $monitors = Monitor::whereNull('parent_id')
-            ->with('children')
-            ->orderBy('updated_at', 'desc')
+            ->with(['children' => function($q) {
+                $q->orderBy('id', 'asc');
+            }, 'children.latestIncident', 'latestIncident']) // Load latestIncident untuk parent & children
+            ->orderBy('id', 'asc')
             ->get();
 
         return view('components.monitor-cards', [
@@ -119,7 +123,7 @@ class MonitorController extends Controller
     // Method baru untuk AJAX
     public function getTableData()
     {
-        $monitors = Monitor::orderBy('updated_at', 'desc')->get();
+        $monitors = Monitor::orderBy('id', 'asc')->get();
         // Kita return view yang POTONGAN tadi (components/monitor-rows)
         return view('components.monitor-cards', compact('monitors'));
     }

@@ -55,21 +55,36 @@
             $statusBorderClass = 'border-[#ef4444] border-4 glow-animate-danger';
             $latencyAnimClass = 'latency-danger-pulse'; 
         }
+
+        // Logic ukuran font nama device
+        $nameLen = strlen($monitor->name);
+        $nameSizeClass = 'text-xl';
+        if ($nameLen > 20) {
+            $nameSizeClass = 'text-sm';
+        } elseif ($nameLen > 15) {
+            $nameSizeClass = 'text-base';
+        }
     @endphp
 
     <div class="tree-node" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
         
-        <div class="tree-node-card">
+        <div class="tree-node-card group relative">
+            {{-- FLOATING IDENTITY LABEL --}}
+            @if($type == 'router')
+            <div class="floating-identity">
+                {{ $monitor->kode_lokasi ?? $loc }}
+            </div>
+            @endif
             
             <div id="card-{{ $monitor->id }}"
                  class="monitor-card relative shadow-md hover:shadow-2xl transition-all duration-300 {{ $statusBorderClass }} bg-white {{ $cardClass }} {{ $warningClass }}"
-                style="min-width: 240px; border-style: solid;"           data-history="{{ json_encode($monitor->history ?? []) }}"
+                 style="border-style: solid;"           data-history="{{ json_encode($monitor->history ?? []) }}"
                  data-ip="{{ $monitor->ip_address }}"
                  data-id="{{ $monitor->id }}"
                  data-type="{{ $monitor->type }}"
                  data-status="{{ $s['line'] }}"
                  data-latency="{{ $monitor->latency }}"
-                 data-down-since="{{ $monitor->updated_at }}">
+                 data-down-since="{{ $monitor->latestIncident && $monitor->status == 'Disconnected' ? $monitor->latestIncident->down_at : $monitor->updated_at }}">
 
                 {{-- DEVICE SPECIFIC DECORATIONS --}}
                 
@@ -135,7 +150,7 @@
 
                     {{-- DEVICE INFO - REVISED VERSION --}}
                     <div class="mb-4 px-6 text-center md:text-left">
-                        <h3 class="device-title text-xl font-black truncate leading-tight" title="{{ $monitor->name }}">
+                        <h3 class="device-title {{ $nameSizeClass }} font-black truncate leading-tight" title="{{ $monitor->name }}">
                             {{ $monitor->name }}
                         </h3>
                         <p class="device-type text-[10px] font-black uppercase tracking-[0.2em] opacity-70 mt-1">

@@ -175,16 +175,30 @@ chart.render();
 let currentZoom = 1, panX = 0, panY = 0, isDragging = false, startX, startY;
 const viewport = document.getElementById('tree-viewport');
 const container = document.getElementById('tree-container');
-const zoomLabel = document.getElementById('zoom-level');
+const zoomInput = document.getElementById('zoom-input');
 
 function updateTransform() {
     viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+    if (zoomInput) zoomInput.value = Math.round(currentZoom * 100);
     if (zoomLabel) zoomLabel.innerText = Math.round(currentZoom * 100) + '%';
     if (!isDragging) requestAnimationFrame(drawTreeLines);
 }
 
+// Function to set zoom manually from input
+function setZoom(value) {
+    let newZoom = parseInt(value);
+
+    // Clamp values between 10% and 200%
+    if (isNaN(newZoom)) newZoom = 100;
+    if (newZoom < 10) newZoom = 10;
+    if (newZoom > 200) newZoom = 200;
+
+    currentZoom = newZoom / 100;
+    updateTransform();
+}
+
 container.addEventListener('mousedown', e => {
-    if (e.target.closest('button, a')) return;
+    if (e.target.closest('button, a, input')) return; // Ignore clicks inputs too
     isDragging = true; startX = e.clientX - panX; startY = e.clientY - panY;
     container.style.cursor = 'grabbing';
 });
@@ -201,6 +215,7 @@ container.addEventListener('wheel', e => { e.preventDefault(); currentZoom += e.
 // Global functions for buttons
 window.zoomIn = () => { currentZoom += 0.2; updateTransform(); };
 window.zoomOut = () => { currentZoom -= 0.2; updateTransform(); };
+window.setZoom = setZoom;
 window.resetZoom = () => { currentZoom = 1; panX = 0; panY = 0; updateTransform(); };
 window.enableSound = enableSound;
 window.toggleBranch = toggleBranch;
@@ -321,6 +336,13 @@ function refreshData() {
                     if (oldApLed && newApLed) {
                         oldApLed.className = newApLed.className;
                     }
+
+                    // Update Latency Display Container Class (Fix bug: update border/bg latency box)
+                    const oldLatBox = oldCard.querySelector('.latency-display');
+                    const newLatBox = newCard.querySelector('.latency-display');
+                    if (oldLatBox && newLatBox) {
+                        oldLatBox.className = newLatBox.className;
+                    }
                     // ============================================================
 
                     // 5. Update Warning Cabang
@@ -373,7 +395,7 @@ function updateStatusCounters() {
 }
 
 // Set Interval refresh (500ms = 0.5 detik)
-setInterval(refreshData, 500);
+setInterval(refreshData, 1000);
 
 // Init awal
 window.onload = () => { setTimeout(drawTreeLines, 100); };
@@ -513,17 +535,26 @@ function updateDownQueue() {
         const name = card.querySelector('.device-title').innerText;
         const ip = card.getAttribute('data-ip');
         const downSince = card.getAttribute('data-down-since') || new Date().toISOString();
-        
+
         let alertBox = container.querySelector(`.down-alert-card[data-alert-id="${id}"]`);
 
         if (!alertBox) {
+            // Format jam mulai down (e.g. 14:30 WIB)
+            const downDate = new Date(downSince);
+            const timeString = new Intl.DateTimeFormat('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Jakarta'
+            }).format(downDate);
+
             // Template kotak antrean yang sudah diselaraskan
             const template = `
                 <div class="down-alert-card bg-white border-l-8 border-red-600 shadow-lg p-3 rounded-xl flex-none w-[280px]" data-alert-id="${id}">
                     <div class="flex justify-between items-start mb-1">
                         <div class="truncate pr-2">
                             <div class="device-name text-sm font-black text-slate-900 truncate">${name}</div>
-                            <div class="text-[10px] text-slate-400 font-mono font-bold tracking-widest uppercase">${ip}</div>
+                            <div class="text-[10px] text-slate-400 font-mono font-bold tracking-widest uppercase mb-0.5">${ip}</div>
+                             <div class="text-[10px] text-red-500 font-bold italic">Mulai: ${timeString} WIB</div>
                         </div>
                         <div class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></div>
                     </div>
@@ -532,7 +563,7 @@ function updateDownQueue() {
                     </div>
                 </div>
             `;
-            
+
             // 'afterbegin' memastikan elemen baru masuk ke posisi paling kiri
             container.insertAdjacentHTML('afterbegin', template);
         }

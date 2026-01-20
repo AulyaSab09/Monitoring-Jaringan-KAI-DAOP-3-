@@ -40,4 +40,20 @@ class Monitor extends Model
     {
         return $this->hasMany(Monitor::class, 'parent_id');
     }
+
+    /**
+     * Relasi ke incidents history
+     */
+    public function incidents()
+    {
+        return $this->hasMany(Incident::class);
+    }
+
+    /**
+     * Get the latest incident.
+     */
+    public function latestIncident()
+    {
+        return $this->hasOne(Incident::class)->latestOfMany('down_at');
+    }
 }
