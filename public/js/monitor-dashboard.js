@@ -463,3 +463,105 @@ if (document.getElementById('dateText') && document.getElementById('timeText')) 
     updateWIB();
     setInterval(updateWIB, 1000);
 }
+
+// Kotak Bawah Down Alert
+
+/**
+ * 1. FUNGSI UPDATE ANTREAN (Last In, First Out)
+ * Mendeteksi device dengan status 'disconnected' dan mengurutkannya ke antrean bawah.
+ */
+function updateDownQueue() {
+    const container = document.getElementById('down-devices-list');
+    if (!container) return;
+
+    // Ambil semua monitor-card yang statusnya disconnected
+    const downCards = Array.from(document.querySelectorAll('.monitor-card[data-status="disconnected"]'));
+
+    // Jika tidak ada yang down, tampilkan pesan aman
+    if (downCards.length === 0) {
+        container.innerHTML = `
+            <div id="no-down-message" class="w-full py-4 text-center bg-gray-100/50 rounded-xl border-2 border-dashed border-gray-200">
+                <p class="text-gray-400 text-xs font-bold italic">Sistem Aman: Semua perangkat dalam kondisi normal.</p>
+            </div>`;
+        return;
+    }
+
+    // Hapus placeholder pesan aman jika ada device yang down
+    const placeholder = document.getElementById('no-down-message');
+    if (placeholder) placeholder.remove();
+
+    // Urutkan: Yang baru saja DOWN (berdasarkan atribut data-down-since) diletakkan paling depan
+    downCards.sort((a, b) => {
+        return new Date(b.getAttribute('data-down-since')) - new Date(a.getAttribute('data-down-since'));
+    });
+
+    // Identifikasi ID perangkat yang saat ini ada di antrean visual
+    const existingIds = Array.from(container.querySelectorAll('.down-alert-card')).map(el => el.getAttribute('data-alert-id'));
+    const currentDownIds = downCards.map(card => card.getAttribute('data-id'));
+
+    // A. HAPUS OTOMATIS: Jika perangkat sudah UP, hilangkan dari antrean bawah
+    existingIds.forEach(id => {
+        if (!currentDownIds.includes(id)) {
+            const el = container.querySelector(`.down-alert-card[data-alert-id="${id}"]`);
+            if (el) el.remove();
+        }
+    });
+
+    // B. TAMBAH/UPDATE: Masukkan perangkat baru ke posisi TERKIRI (Index 0)
+    downCards.forEach((card) => {
+        const id = card.getAttribute('data-id');
+        const name = card.querySelector('.device-title').innerText;
+        const ip = card.getAttribute('data-ip');
+        const downSince = card.getAttribute('data-down-since') || new Date().toISOString();
+        
+        let alertBox = container.querySelector(`.down-alert-card[data-alert-id="${id}"]`);
+
+        if (!alertBox) {
+            // Template kotak antrean yang sudah diselaraskan
+            const template = `
+                <div class="down-alert-card bg-white border-l-8 border-red-600 shadow-lg p-3 rounded-xl flex-none w-[280px]" data-alert-id="${id}">
+                    <div class="flex justify-between items-start mb-1">
+                        <div class="truncate pr-2">
+                            <div class="device-name text-sm font-black text-slate-900 truncate">${name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono font-bold tracking-widest uppercase">${ip}</div>
+                        </div>
+                        <div class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></div>
+                    </div>
+                    <div class="duration-timer bg-red-700 text-white py-1.5 px-3 rounded-lg text-center font-mono font-black text-lg" data-start-time="${downSince}">
+                        00j 00m 00d
+                    </div>
+                </div>
+            `;
+            
+            // 'afterbegin' memastikan elemen baru masuk ke posisi paling kiri
+            container.insertAdjacentHTML('afterbegin', template);
+        }
+    });
+}
+
+/**
+ * 2. FUNGSI TIMER REAL-TIME
+ * Menghitung selisih waktu dari saat mulai DOWN sampai detik ini.
+ */
+function runTimers() {
+    document.querySelectorAll('.duration-timer').forEach(timer => {
+        const startTime = new Date(timer.getAttribute('data-start-time'));
+        const now = new Date();
+        const diff = Math.abs(now - startTime);
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        timer.innerText = `${hours.toString().padStart(2, '0')}j ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}d`;
+    });
+}
+
+/**
+ * 3. INISIALISASI LOOP
+ * Jalankan pengecekan antrean dan update timer setiap 1 detik.
+ */
+setInterval(() => {
+    updateDownQueue();
+    runTimers();
+}, 1000);
