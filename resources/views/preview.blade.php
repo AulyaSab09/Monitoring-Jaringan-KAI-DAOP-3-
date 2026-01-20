@@ -5,11 +5,39 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sistem Monitoring Jaringan - KAI DAOP 3 Cirebon</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />        
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <link rel="stylesheet" href="{{ asset('css/monitor-preview.css') }}">
+        <style>
+            .glow-animate-danger {
+                animation: glow-red 1.2s infinite ease-in-out;
+            }
+
+            @keyframes glow-red {
+                0%, 100% { 
+                    border-color: #ef4444; 
+                    box-shadow: 0 0 5px #ef4444, inset 0 0 5px rgba(239, 68, 68, 0.2); 
+                    opacity: 1;
+                }
+                50% { 
+                    border-color: #7f1d1d; 
+                    box-shadow: 0 0 25px #ef4444, 0 0 40px #ef4444; 
+                    opacity: 0.9;
+                }
+            }
+
+            .latency-danger-pulse {
+                animation: latency-glow 1.2s infinite ease-in-out;
+            }
+
+            @keyframes latency-glow {
+                0%, 100% { background-color: #fee2e2; border-color: #ef4444; }
+                50% { background-color: #ef4444; border-color: #7f1d1d; color: white !important; }
+            }
+        </style>
     </head>
     <body class="bg-gray-50 text-[#1b1b18] min-h-screen font-sans py-4" data-monitor-data-url="{{ route('monitor.data') }}">
         <div class="max-w-auto mx-auto px-4">
@@ -32,7 +60,7 @@
 
                     <div class="text-right leading-tight">
                         <div id="dateText" class="text-gray-600 font-medium text-lg"></div>
-                        <div id="timeText" class="text-gray-900 text-3xl font-bold"></div>
+                        <div id="timeText" class="text-[#001D4B] text-3xl font-bold"></div>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
@@ -63,28 +91,29 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-3">
-                        <a href="{{ route('monitor.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <a href="{{ route('monitor.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FF7300] text-white rounded-lg hover:opacity-90 transition-all text-sm font-bold shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
                             Tambah Device
                         </a>
                         
                         <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                            <button @click="open = !open" class="flex items-center space-x-2 bg-white border border-gray-200 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition">
-                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button @click="open = !open" 
+                                class="flex items-center space-x-2 bg-white border-2 border-[#001D4B] py-2 px-4 rounded-lg shadow-sm hover:bg-[#001D4B] hover:text-white transition-all group">
+                                <svg class="w-5 h-5 text-[#001D4B] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                                <span class="text-sm font-semibold text-gray-700">{{ Auth::user()->name }}</span>
-                                <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <span class="text-sm font-bold text-[#001D4B] group-hover:text-white">{{ Auth::user()->name }}</span>
+                                <svg class="w-4 h-4 text-[#001D4B] group-hover:text-white transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
 
-                            <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50">
-                                <a href="{{ route('history.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 transition">
-                                    <svg class="w-4 h-4 mr-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50 overflow-hidden">
+                                <a href="{{ route('history.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-[#001D4B] hover:text-white transition">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     History
                                 </a>
@@ -137,6 +166,25 @@
         <button id="sound-toggle" onclick="enableSound()" class="fixed bottom-4 right-4 z-50 px-4 py-2 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-700 transition-all flex items-center gap-2 text-sm font-semibold">
             <span id="sound-label">🔇 Suara On</span>
         </button>
+
+        <!-- Kotak Device Bawah -->
+
+       {{-- BAGIAN ANTREAN DOWN (Revisi Padding & Judul) --}}
+        <div class="mt-4 mb-6 px-4"> {{-- px-4 ditambahkan agar sejajar dengan logo KAI di atas --}}
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-1.5 h-6 bg-red-600 rounded-full animate-pulse"></div>
+                {{-- Judul baru sesuai saran, tanpa tulisan "Terbaru di Kiri" --}}
+                <h2 class="text-lg font-black text-gray-900 tracking-tight uppercase">Perangkat Terdeteksi Down</h2>
+            </div>
+
+            {{-- Kontainer Scroll (Dihilangkan padding-left bawaan jika ada agar alignment pas) --}}
+            <div id="down-devices-list" class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style="scroll-behavior: smooth;">
+                {{-- Placeholder --}}
+                <div id="no-down-message" class="w-full py-6 text-center bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300">
+                    <p class="text-gray-500 font-bold italic">Sistem Aman: Semua perangkat dalam kondisi normal.</p>
+                </div>
+            </div>
+        </div>
             
         <script src="{{ asset('js/monitor-dashboard.js') }}"></script>
     </body>
