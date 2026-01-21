@@ -97,8 +97,6 @@
                 @endif
 
                 @if($type == 'switch')
-                    <div class="switch-ears left"></div>
-                    <div class="switch-ears right"></div>
                     <div class="switch-body">
                 @endif
 
