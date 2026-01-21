@@ -67,15 +67,11 @@
     @endphp
 
     <div class="tree-node" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
-        
         <div class="tree-node-card group relative">
-            {{-- FLOATING IDENTITY LABEL --}}
-            @if($type == 'router')
+            {{-- FLOATING IDENTITY LABEL --}}       
             <div class="floating-identity">
                 {{ $monitor->kode_lokasi ?? $loc }}
-            </div>
-            @endif
-            
+            </div>          
             <div id="card-{{ $monitor->id }}"
                  class="monitor-card relative shadow-md hover:shadow-2xl transition-all duration-300 {{ $statusBorderClass }} bg-white {{ $cardClass }} {{ $warningClass }}"
                  style="border-style: solid;"           data-history="{{ json_encode($monitor->history ?? []) }}"
@@ -178,6 +174,11 @@
 
                     {{-- ACTION BUTTONS --}}
                     <div class="flex justify-end gap-3 mt-4 px-4 pb-4">
+                        <a href="{{ route('monitor.create', ['parent_id' => $monitor->id]) }}" class="action-btn-add text-gray-400 p-2 rounded-lg transition-all" title="Tambah Turunan">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </a>
                         <form action="{{ route('monitor.destroy', $monitor->id) }}" method="POST" onsubmit="return confirm('Hapus device ini?');">
                             @csrf @method('DELETE')
                             <button class="action-btn-delete text-gray-400 p-2 rounded-lg transition-all">
@@ -199,11 +200,9 @@
                 @if($type == 'pc') <div class="pc-bezel"><div class="pc-power-led"></div></div><div class="pc-stand"></div><div class="pc-base"></div> @endif
                 @if($type == 'cctv') <div class="cctv-lens"></div> @endif
 
-                <a href="{{ route('monitor.create', ['parent_id' => $monitor->id]) }}" class="hover-add-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg></a>
-
                 @if($hasChildren)
                     <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30"><svg id="arrow-{{ $monitor->id }}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg></button>
-                    <div id="badge-hidden-{{ $monitor->id }}" class="hidden absolute -bottom-12 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce">! CEK</div>
+                    <div id="badge-hidden-{{ $monitor->id }}" class="hidden absolute -bottom-18 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ">! CEK</div>
                 @endif
             </div>
         </div>

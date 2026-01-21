@@ -6,7 +6,6 @@
 body {
     font-family: 'Figtree', sans-serif !important;
     -webkit-font-smoothing: antialiased;
-    /* Membuat font lebih halus/smooth */
     -moz-osx-font-smoothing: grayscale;
 }
 
@@ -39,90 +38,20 @@ body {
     letter-spacing: -0.02em;
 }
 
-/* 1. Definisi Warna & Border Standar */
-.monitor-card {
-    border-width: 4px !important;
-    transition: all 0.3s ease;
-}
-
-/* 2. Style Per Status (Sesuai Permintaan) */
-/* UP: Hanya Border Hijau, Kotak Bersih */
-.monitor-card.bg-emerald-50 {
-    border-color: #10b981 !important;
-    /* Hijau KAI */
-    background-color: #ffffff !important;
-}
-
-/* UNSTABLE (Ganti dari Warning): Hanya Border Orange */
-.monitor-card.bg-orange-50 {
-    border-color: #f97316 !important;
-    background-color: #ffffff !important;
-}
-
-/* DOWN: Kelap-kelip Merah & Teks Putih */
-.monitor-card.bg-red-50 {
-    border-color: #ef4444 !important;
-    animation: down-pulse-border 1.5s infinite;
-    background-color: #ef4444 !important;
-    /* Background jadi merah solid saat down */
-}
-
-/* 3. Animasi Shadow yang Lebih Rapat (Tidak Menyebar Jauh) */
-@keyframes down-pulse-border {
-    0% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    }
-
-    70% {
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-    }
-
-    /* Spread diperkecil dari 20px ke 10px */
-    100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-    }
-}
-
-/* Warna Default Latency (Saat UP atau Normal) */
-.latency-value,
-.latency-unit {
-    color: #1e293b;
-    /* Warna gelap Navy default */
-}
-
-/* KHUSUS DOWN: Paksa Teks Menjadi Putih Bersih */
-.monitor-card.bg-red-50 .latency-value,
-.monitor-card.bg-red-50 .latency-unit,
-.monitor-card.bg-red-50 .device-title,
-.monitor-card.bg-red-50 .device-type,
-.monitor-card.bg-red-50 .status-text {
-    color: #ffffff !important;
-    /* Putih Mutlak */
-}
-
-/* Kotak Latency saat DOWN agar lebih kontras dengan teks putih */
-.monitor-card.bg-red-50 .latency-display {
-    background: rgba(0, 0, 0, 0.3) !important;
-    /* Hitam transparan */
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-}
-
-.monitor-card.bg-red-50 .latency-display {
-    background: rgba(0, 0, 0, 0.2) !important;
-    /* Background latency agak gelap agar teks putih makin tajam */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
+/* ============================================================
+   TREE STRUCTURE & LAYOUT (CORE)
+   ============================================================ */
 
 .tree-container {
     position: relative;
     overflow: hidden;
-    padding: 1rem;
-    height: calc(100vh - 380px) !important;
+    padding: 2rem 1rem;
+    height: calc(100vh - 240px) !important;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 2px solid #cbd5e1;
     border-radius: 1rem;
+    cursor: grab;
     margin-bottom: 1rem;
-    /* Jarak ke antrean bawah */
 }
 
 .tree-container:active {
@@ -173,7 +102,8 @@ body {
 
 .tree-wrapper {
     display: flex;
-    gap: 4rem;
+    gap: 8rem;
+    /* INCREASED from 4rem to 8rem to make lines longer */
     position: relative;
     z-index: 2;
 }
@@ -188,18 +118,97 @@ body {
 .tree-node-card {
     position: relative;
     z-index: 2;
-    margin-bottom: 5rem;
+    margin-bottom: 6rem;
+    /* INCREASED from 5rem to 6rem */
 }
 
 .tree-children {
     display: flex;
-    gap: 3rem;
+    gap: 5rem;
+    /* INCREASED from 3rem to 5rem */
     margin-top: 0.5rem;
 }
 
-/* === IMPROVED DEVICE STYLES === */
+/* ============================================================
+   CARD STYLES (Consolidated)
+   ============================================================ */
 
-/* 1. ROUTER - Modern Design dengan Glass Effect */
+.monitor-card {
+    border-width: 4px !important;
+    border-style: solid !important;
+    transition: all 0.3s ease;
+    overflow: visible !important;
+}
+
+/* UP (Connected) */
+.monitor-card.bg-emerald-50 {
+    border-color: #10b981 !important;
+    background-color: #ffffff !important;
+}
+
+/* WARNING (Unstable) */
+.monitor-card.bg-orange-50 {
+    border-color: #f97316 !important;
+    background-color: #ffffff !important;
+}
+
+/* DOWN (Disconnected) */
+.monitor-card.bg-red-50 {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    animation: neon-danger-glow 1s infinite alternate !important;
+    z-index: 50;
+}
+
+/* DOWN Text Color Override */
+.monitor-card.bg-red-50 .latency-value,
+.monitor-card.bg-red-50 .latency-unit,
+.monitor-card.bg-red-50 .device-title,
+.monitor-card.bg-red-50 .device-type,
+.monitor-card.bg-red-50 .status-text {
+    color: #ffffff !important;
+}
+
+.monitor-card.bg-red-50 .latency-display {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ANIMATIONS */
+@keyframes neon-danger-glow {
+    from {
+        border-color: #ff0000 !important;
+        box-shadow: 0 0 10px #ff0000, inset 0 0 5px #ff0000;
+    }
+
+    to {
+        border-color: #b91c1c !important;
+        box-shadow: 0 0 25px #ff0000, 0 0 45px #ff0000, inset 0 0 10px #7f1d1d;
+    }
+}
+
+.latency-danger-pulse {
+    animation: latency-neon-flash 1s infinite alternate !important;
+}
+
+@keyframes latency-neon-flash {
+    from {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: #ffffff;
+    }
+
+    to {
+        background-color: #7f1d1d;
+        border-color: #ff0000;
+        box-shadow: 0 0 15px #ef4444;
+    }
+}
+
+/* ============================================================
+   DEVICE TYPES (Router, Switch, etc)
+   ============================================================ */
+
+/* 1. ROUTER */
 .device-router {
     background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
     border-radius: 16px;
@@ -211,41 +220,9 @@ body {
 }
 
 .router-body {
-    position: relative;
     padding: 16px;
+    position: relative;
 }
-
-/* .router-antenna {
-    position: absolute;
-    top: -28px;
-    width: 6px;
-    height: 32px;
-    background: linear-gradient(180deg, #64748b 0%, #94a3b8 100%);
-    border-radius: 3px 3px 0 0;
-    z-index: -1;
-}
-
-.router-antenna.left {
-    left: 24px;
-    transform: rotate(-15deg);
-}
-
-.router-antenna.right {
-    right: 24px;
-    transform: rotate(15deg);
-}
-
-.router-antenna::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 3px;
-    height: 8px;
-    background: #475569;
-    border-radius: 3px 3px 0 0;
-} */
 
 .router-leds {
     display: flex;
@@ -277,7 +254,7 @@ body {
     border-radius: 50%;
 }
 
-/* 2. SWITCH - Rack Mount Style */
+/* 2. SWITCH */
 .device-switch {
     background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
     border-radius: 8px;
@@ -305,26 +282,11 @@ body {
 .switch-ears.left {
     left: -12px;
     border-right: 2px solid #94a3b8;
-    box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .switch-ears.right {
     right: -12px;
     border-left: 2px solid #94a3b8;
-    box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.1);
-}
-
-.switch-ears::before {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 4px;
-    background: #64748b;
-    border-radius: 50%;
-    box-shadow: 0 16px 0 #64748b, 0 32px 0 #64748b;
 }
 
 .port-grid {
@@ -346,38 +308,13 @@ body {
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.port.active::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 3px;
-    height: 3px;
-    background: #22c55e;
-    border-radius: 50%;
-    box-shadow: 0 0 6px #22c55e;
-    animation: port-blink 2s infinite;
-}
-
-@keyframes port-blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.3;
-    }
-}
-
-/* 3. SERVER - Datacenter Style */
+/* 3. SERVER */
 .device-server {
     background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 20%, #e2e8f0 100%);
     border-radius: 8px;
     border: 2px solid #94a3b8;
     width: 240px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -394,11 +331,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: repeating-linear-gradient(0deg,
-            transparent,
-            transparent 8px,
-            rgba(100, 116, 139, 0.15) 8px,
-            rgba(100, 116, 139, 0.15) 10px);
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(100, 116, 139, 0.15) 8px, rgba(100, 116, 139, 0.15) 10px);
     pointer-events: none;
     z-index: 1;
 }
@@ -419,7 +352,7 @@ body {
     background: #cbd5e1;
 }
 
-/* 4. PC - Monitor Design */
+/* 4. PC */
 .device-pc {
     background: #ffffff;
     border: 3px solid #1e293b;
@@ -465,9 +398,8 @@ body {
     transform: translateX(-50%);
     width: 50px;
     height: 18px;
-    background: linear-gradient(180deg, #475569 0%, #334155 100%);
+    background: #334155;
     clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
-    border-radius: 0 0 4px 4px;
 }
 
 .pc-base {
@@ -479,22 +411,21 @@ body {
     height: 6px;
     background: #1e293b;
     border-radius: 3px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* 5. ACCESS POINT - Modern Circular */
+/* 5. ACCESS POINT */
 .device-ap {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border-radius: 50%;
+    border-radius: 50% !important;
     border: 3px solid #e2e8f0;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    width: 200px;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    width: 260px !important;
+    height: 260px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 20px !important;
     position: relative;
 }
 
@@ -554,22 +485,7 @@ body {
     }
 }
 
-.ap-center {
-    position: relative;
-    z-index: 2;
-}
-
-/* .ap-led {
-    width: 12px;
-    height: 12px;
-    background: #22c55e;
-    border-radius: 50%;
-    box-shadow: 0 0 12px #22c55e;
-    margin: 0 auto 12px;
-    animation: pulse 2s infinite;
-} */
-
-/* 6. CCTV - Security Camera */
+/* 6. CCTV */
 .device-cctv {
     background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
     border-radius: 12px 12px 50% 50%;
@@ -595,18 +511,6 @@ body {
     background: radial-gradient(circle at 35% 35%, #64748b 0%, #1e293b 40%, #000 100%);
     border-radius: 50%;
     border: 3px solid #94a3b8;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
-}
-
-.cctv-lens::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 12px;
-    height: 12px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
 }
 
 .cctv-led {
@@ -617,23 +521,10 @@ body {
     height: 6px;
     background: #ef4444;
     border-radius: 50%;
-    box-shadow: 0 0 8px #ef4444;
     animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.4;
-    }
-}
-
-/* === STATUS INDICATORS === */
+/* === STATUS BADGES & TEXT === */
 .status-badge-container {
     display: flex;
     align-items: center;
@@ -651,23 +542,19 @@ body {
     height: 10px;
     border-radius: 50%;
     position: relative;
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
     animation: status-pulse 2s infinite;
 }
 
 .status-dot.connected {
     background: #22c55e;
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
 }
 
 .status-dot.unstable {
     background: #f97316;
-    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
 }
 
 .status-dot.disconnected {
     background: #ef4444;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
 }
 
 @keyframes status-pulse {
@@ -703,7 +590,7 @@ body {
     color: #991b1b;
 }
 
-/* === CARD CONTENT === */
+/* === TYPOGRAPHY & LAYOUT UTILS === */
 .device-title {
     font-size: 15px;
     font-weight: 700;
@@ -738,6 +625,7 @@ body {
     background: rgba(0, 0, 0, 0.03);
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
 .latency-value {
@@ -752,7 +640,7 @@ body {
     color: #64748b;
 }
 
-/* UTILS */
+/* === HOVER & ACTIONS === */
 .hover-add-btn {
     position: absolute;
     bottom: -16px;
@@ -782,310 +670,48 @@ body {
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
 }
 
-/* WARNING ANIMATIONS */
-.child-down-warning {
-    animation: pulse-red 1.5s infinite;
-    border-color: #ef4444 !important;
-    border-width: 3px !important;
-}
-
-.child-unstable-warning {
-    animation: pulse-orange 1.5s infinite;
-    border-color: #f97316 !important;
-    border-width: 3px !important;
-}
-
-@keyframes pulse-red {
-
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    }
-
-    70% {
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-    }
-}
-
-@keyframes pulse-orange {
-
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
-    }
-
-    70% {
-        box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
-    }
-}
-
-/* ============================================================
-   1. CORE & STATUS CARD STYLES
-   ============================================================ */
-
-.monitor-card {
-    border-width: 4px !important;
-    border-style: solid !important;
-    transition: all 0.3s ease;
-    overflow: visible !important;
-    /* Penting agar efek cahaya/glow tidak terpotong */
-}
-
-/* UP (Connected): Hanya Border Hijau, Kotak Putih */
-.monitor-card.bg-emerald-50 {
-    border-color: #10b981 !important;
-    background-color: #ffffff !important;
-}
-
-/* WARNING (Unstable): Hanya Border Orange, Kotak Putih */
-.monitor-card.bg-orange-50 {
-    border-color: #f97316 !important;
-    background-color: #ffffff !important;
-}
-
-/* DOWN (Disconnected): Kelap-kelip Neon Merah & Teks Putih */
-.monitor-card.bg-red-50 {
-    background-color: #ef4444 !important;
-    /* Merah Solid */
-    animation: neon-danger-glow 1s infinite alternate !important;
-    z-index: 50;
-}
-
-/* Paksa teks jadi putih saat DOWN */
-.monitor-card.bg-red-50 .latency-value,
-.monitor-card.bg-red-50 .latency-unit,
-.monitor-card.bg-red-50 .device-title,
-.monitor-card.bg-red-50 .device-type,
-.monitor-card.bg-red-50 .status-text {
-    color: #ffffff !important;
-}
-
-/* ============================================================
-   2. ANIMATIONS (Neon & Glow)
-   ============================================================ */
-
-/* Efek Neon Glow untuk Border Luar */
-@keyframes neon-danger-glow {
-    from {
-        border-color: #ff0000 !important;
-        box-shadow: 0 0 10px #ff0000, inset 0 0 5px #ff0000;
-    }
-
-    to {
-        border-color: #b91c1c !important;
-        box-shadow: 0 0 25px #ff0000, 0 0 45px #ff0000, inset 0 0 10px #7f1d1d;
-    }
-}
-
-/* Efek Kelap-Kelip Kotak Latency di Dalam Card */
-.latency-danger-pulse {
-    animation: latency-neon-flash 1s infinite alternate !important;
-}
-
-@keyframes latency-neon-flash {
-    from {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-color: #ffffff;
-    }
-
-    to {
-        background-color: #7f1d1d;
-        border-color: #ff0000;
-        box-shadow: 0 0 15px #ef4444;
-    }
-}
-
-/* ============================================================
-   3. DEVICE SPECIFIC & ACTION BUTTONS
-   ============================================================ */
-
-/* Memperbesar Access Point agar konten muat di dalam lingkaran */
-.device-ap {
-    width: 260px !important;
-    height: 260px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    padding: 20px !important;
-}
-
-/* Ikon Edit & Delete Jumbo dengan Hover Navy KAI */
-.action-btn-edit,
-.action-btn-delete {
-    transition: all 0.2s ease-in-out;
+.action-btn-add:hover {
+    background-color: #dcfce7 !important;
+    /* Hijau muda */
+    color: #166534 !important;
+    /* Hijau tua */
+    transform: scale(1.1);
 }
 
 .action-btn-edit:hover {
     background-color: #e0e7ff !important;
-    /* Biru muda */
     color: #001D4B !important;
-    /* Navy KAI */
     transform: scale(1.1);
 }
 
 .action-btn-delete:hover {
     background-color: #fee2e2 !important;
-    /* Merah muda */
     color: #ef4444 !important;
-    /* Merah Danger */
     transform: scale(1.1);
 }
 
-/* Mempertebal ikon saat di-hover */
+.action-btn-add:hover svg,
 .action-btn-edit:hover svg,
 .action-btn-delete:hover svg {
     stroke-width: 3px !important;
 }
 
-/* ============================================================
-   4. TREE STRUCTURE & LAYOUT (CORE)
-   ============================================================ */
-
-.tree-container {
-    position: relative;
-    overflow: hidden;
-    padding: 2rem 1rem;
-    height: calc(100vh - 240px);
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border: 2px solid #cbd5e1;
-    border-radius: 1rem;
-    cursor: grab;
-}
-
-.tree-viewport {
-    transform-origin: 0 0;
-    min-width: max-content;
-    position: relative;
-    padding: 100px;
-}
-
-.tree-lines-svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.tree-line {
-    stroke: #cbd5e1;
-    stroke-width: 3;
-    fill: none;
-    stroke-linecap: round;
-    transition: stroke 0.4s ease;
-}
-
-.tree-line.status-connected {
-    stroke: #10b981;
-}
-
-.tree-line.status-disconnected {
-    stroke: #ef4444;
-    stroke-dasharray: 6, 4;
-}
-
-.tree-wrapper {
-    display: flex;
-    gap: 4rem;
-    position: relative;
-    z-index: 2;
-}
-
-.tree-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
-.tree-node-card {
-    position: relative;
-    z-index: 2;
-    margin-bottom: 5rem;
-}
-
-.tree-children {
-    display: flex;
-    gap: 3rem;
-    margin-top: 0.5rem;
-}
-
-/* Status Indicators (Badge) */
-.status-badge-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.latency-display {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.03);
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-/* Hover Add Button */
-.hover-add-btn {
-    position: absolute;
-    bottom: -16px;
-    left: 50%;
-    transform: translateX(-50%) scale(0);
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    border: 3px solid white;
-    border-radius: 50%;
-    color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 20;
-    cursor: pointer;
-}
-
-.tree-node-card:hover .hover-add-btn {
-    transform: translateX(-50%) scale(1);
-}
-
-/* Kotak Bawah Down Device */
-/* Container Scroll */
+/* === DOWN ALERTS === */
 #down-devices-list {
     scrollbar-width: none;
-    /* Hide scrollbar Firefox */
     -ms-overflow-style: none;
-    /* Hide scrollbar IE/Edge */
 }
 
 #down-devices-list::-webkit-scrollbar {
     display: none;
-    /* Hide scrollbar Chrome/Safari */
 }
 
-/* Card Alert Down */
 .down-alert-card {
     flex: 0 0 260px;
-    /* Lebar diperkecil sedikit */
     background: #ffffff;
     border: 2px solid #fee2e2;
     border-left: 8px solid #ef4444;
     padding: 0.75rem;
-    /* Padding dikurangi agar tidak makan tempat vertikal */
     border-radius: 1rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     display: flex;
@@ -1098,7 +724,6 @@ body {
     font-weight: 900;
     color: #1e293b;
     font-size: 0.95rem;
-    /* Ukuran font dikecilkan */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1112,6 +737,5 @@ body {
     text-align: center;
     font-weight: 900;
     font-size: 1.1rem;
-    /* Lebih kecil agar proporsional */
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }

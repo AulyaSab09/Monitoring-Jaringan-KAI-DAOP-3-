@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('monitor_id')->constrained('monitors')->onDelete('cascade');
             $table->timestamp('down_at');
             $table->timestamp('up_at')->nullable();
+            $table->string('status')->default('down');
             $table->timestamps();
         });
     }

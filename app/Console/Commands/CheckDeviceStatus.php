@@ -71,6 +71,7 @@ class CheckDeviceStatus extends Command
                         \App\Models\Incident::create([
                             'monitor_id' => $monitor->id,
                             'down_at' => now(),
+                            'status' => $newStatus,
                         ]);
                     }
 
@@ -83,7 +84,10 @@ class CheckDeviceStatus extends Command
                             ->first();
                         
                         if ($lastIncident) {
-                            $lastIncident->update(['up_at' => now()]);
+                            $lastIncident->update([
+                                'up_at' => now(),
+                                'status' => $newStatus
+                            ]);
                         }
                     }
                     // ------------------------------------------

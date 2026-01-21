@@ -91,7 +91,7 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-3">
-                        <a href="{{ route('monitor.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FF7300] text-white rounded-lg hover:opacity-90 transition-all text-sm font-bold shadow-md">
+                        <a href="{{ route('monitor.create') }}" class="inline-flex items-center  bg-[#FF7300] text-white rounded-lg hover:opacity-90 transition-all text-sm font-bold shadow-md">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>

@@ -9,7 +9,7 @@ class Incident extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['monitor_id', 'down_at', 'up_at'];
+    protected $fillable = ['monitor_id', 'down_at', 'up_at', 'status'];
 
     protected $casts = [
         'down_at' => 'datetime',
