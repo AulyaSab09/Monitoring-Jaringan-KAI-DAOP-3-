@@ -11,33 +11,6 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <link rel="stylesheet" href="{{ asset('css/monitor-preview.css') }}">
-        <style>
-            .glow-animate-danger {
-                animation: glow-red 1.2s infinite ease-in-out;
-            }
-
-            @keyframes glow-red {
-                0%, 100% { 
-                    border-color: #ef4444; 
-                    box-shadow: 0 0 5px #ef4444, inset 0 0 5px rgba(239, 68, 68, 0.2); 
-                    opacity: 1;
-                }
-                50% { 
-                    border-color: #7f1d1d; 
-                    box-shadow: 0 0 25px #ef4444, 0 0 40px #ef4444; 
-                    opacity: 0.9;
-                }
-            }
-
-            .latency-danger-pulse {
-                animation: latency-glow 1.2s infinite ease-in-out;
-            }
-
-            @keyframes latency-glow {
-                0%, 100% { background-color: #fee2e2; border-color: #ef4444; }
-                50% { background-color: #ef4444; border-color: #7f1d1d; color: white !important; }
-            }
-        </style>
     </head>
     <body class="bg-gray-50 text-[#1b1b18] min-h-screen font-sans py-4" data-monitor-data-url="{{ route('monitor.data') }}">
         <div class="max-w-auto mx-auto px-4">
@@ -177,16 +150,14 @@
         <!-- Kotak Device Bawah -->
 
        {{-- BAGIAN ANTREAN DOWN (Revisi Padding & Judul) --}}
-        <div class="mt-4 mb-6 px-4"> {{-- px-4 ditambahkan agar sejajar dengan logo KAI di atas --}}
+        <div class="mt-4 mb-6 px-4"> 
             <div class="flex items-center gap-3 mb-3">
                 <div class="w-1.5 h-6 bg-red-600 rounded-full animate-pulse"></div>
-                {{-- Judul baru sesuai saran, tanpa tulisan "Terbaru di Kiri" --}}
                 <h2 class="text-lg font-black text-gray-900 tracking-tight uppercase">Perangkat Terdeteksi Down</h2>
             </div>
 
             {{-- Kontainer Scroll (Dihilangkan padding-left bawaan jika ada agar alignment pas) --}}
             <div id="down-devices-list" class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style="scroll-behavior: smooth;">
-                {{-- Placeholder --}}
                 <div id="no-down-message" class="w-full py-6 text-center bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300">
                     <p class="text-gray-500 font-bold italic">Sistem Aman: Semua perangkat dalam kondisi normal.</p>
                 </div>

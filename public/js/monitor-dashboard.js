@@ -549,20 +549,34 @@ function updateDownQueue() {
 
             // Template kotak antrean yang sudah diselaraskan
             const template = `
-                <div class="down-alert-card bg-white border-l-8 border-red-600 shadow-lg p-3 rounded-xl flex-none w-[280px]" data-alert-id="${id}">
-                    <div class="flex justify-between items-start mb-1">
-                        <div class="truncate pr-2">
-                            <div class="device-name text-sm font-black text-slate-900 truncate">${name}</div>
-                            <div class="text-[10px] text-slate-400 font-mono font-bold tracking-widest uppercase mb-0.5">${ip}</div>
-                             <div class="text-[10px] text-red-500 font-bold italic">Mulai: ${timeString} WIB</div>
-                        </div>
-                        <div class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></div>
-                    </div>
-                    <div class="duration-timer bg-red-700 text-white py-1.5 px-3 rounded-lg text-center font-mono font-black text-lg" data-start-time="${downSince}">
-                        00j 00m 00d
-                    </div>
+    <div class="down-alert-card bg-white border-l-8 border-red-600 shadow-lg p-3 rounded-xl flex-none" 
+         style="min-width: 300px; width: auto; max-width: fit-content;" 
+         data-alert-id="${id}">
+        
+        <div class="flex items-center justify-between gap-4">
+            
+            <div class="flex-none whitespace-nowrap">
+                <div class="device-name font-black text-slate-900 leading-none" 
+                     style="font-size: 22px !important; display: block !important; margin: 0 !important;">
+                    ${name}
                 </div>
-            `;
+                <div class="text-[10px] text-red-500 font-bold italic mt-1">
+                    Mulai: ${timeString} WIB
+                </div>
+            </div>
+
+            <div class="duration-timer bg-red-700 text-white py-1.5 px-3 rounded-lg text-center font-mono font-black text-lg shadow-inner" 
+                 data-start-time="${downSince}">
+                00j 00m 00d
+            </div>
+
+            <div class="flex-none">
+                <div class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></div>
+            </div>
+            
+        </div> 
+    </div>
+`;
 
             // 'afterbegin' memastikan elemen baru masuk ke posisi paling kiri
             container.insertAdjacentHTML('afterbegin', template);
