@@ -41,12 +41,12 @@ body {
 /* ============================================================
    TREE STRUCTURE & LAYOUT (CORE)
    ============================================================ */
-
+/* Kalau ubah tinggi container kotak isi device disini */
 .tree-container {
     position: relative;
     overflow: hidden;
     padding: 2rem 1rem;
-    height: calc(100vh - 240px) !important;
+    height: calc(100vh - 355px) !important;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 2px solid #cbd5e1;
     border-radius: 1rem;
@@ -175,34 +175,64 @@ body {
 }
 
 /* ANIMATIONS */
-@keyframes neon-danger-glow {
+/* @keyframes neon-danger-glow {
     from {
         border-color: #ff0000 !important;
         box-shadow: 0 0 10px #ff0000, inset 0 0 5px #ff0000;
     }
 
     to {
-        border-color: #b91c1c !important;
+        border-color: #b37070 !important;
         box-shadow: 0 0 25px #ff0000, 0 0 45px #ff0000, inset 0 0 10px #7f1d1d;
     }
-}
+} */
 
 .latency-danger-pulse {
     animation: latency-neon-flash 1s infinite alternate !important;
 }
 
+/* bg-[#FFDCDC] text-[#82181A]"> */
+
+/* Down Kotak Latency */
 @keyframes latency-neon-flash {
     from {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-color: #ffffff;
+        background-color: #FFDCDC;
+        border-color: #ef4444;
     }
 
     to {
-        background-color: #7f1d1d;
-        border-color: #ff0000;
+        background-color: #ef4444;
+        border-color: #b91c1c;
         box-shadow: 0 0 15px #ef4444;
     }
 }
+
+/* Glow Border */
+.glow-animate-danger {
+    animation: glow-red 1.2s infinite ease-in-out;
+}
+
+@keyframes glow-red {
+    0%, 100% { 
+        border-color: #ef4444; 
+        box-shadow: 0 0 5px #ef4444, inset 0 0 5px rgba(239, 68, 68, 0.2); 
+        opacity: 1;
+    }
+    50% { 
+        border-color: #7f1d1d; 
+        box-shadow: 0 0 25px #ef4444, 0 0 40px #ef4444; 
+        opacity: 0.9;
+        }
+}
+
+.latency-danger-pulse {
+    animation: latency-glow 1.2s infinite ease-in-out;
+}
+
+@keyframes latency-glow {
+    0%, 100% { background-color: #fee2e2; border-color: #ef4444; }
+    50% { background-color: #ef4444; border-color: #7f1d1d; color: white !important; }
+}      
 
 /* ============================================================
    DEVICE TYPES (Router, Switch, etc)
