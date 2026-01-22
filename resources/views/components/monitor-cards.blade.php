@@ -173,22 +173,16 @@
                     {{-- ACTION BUTTONS --}}
                     <div class="flex justify-end gap-3 mt-4 px-4 pb-4">
                         <a href="{{ route('monitor.create', ['parent_id' => $monitor->id]) }}" class="action-btn-add text-gray-400 p-2 rounded-lg transition-all" title="Tambah Turunan">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                            </svg>
+                            <i class="fa-solid fa-plus w-6 h-6"></i>
                         </a>
                         <form action="{{ route('monitor.destroy', $monitor->id) }}" method="POST" onsubmit="return confirm('Hapus device ini?');">
                             @csrf @method('DELETE')
                             <button class="action-btn-delete text-gray-400 p-2 rounded-lg transition-all">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
+                                <i class="fa-solid fa-trash w-6 h-6"></i>
                             </button>
                         </form>
                         <a href="{{ route('monitor.edit', $monitor->id) }}" class="action-btn-edit text-gray-400 p-2 rounded-lg transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
+                            <i class="fa-solid fa-pen-to-square w-6 h-6"></i>
                         </a>
                     </div>
                 </div>
@@ -199,7 +193,7 @@
                 @if($type == 'cctv') <div class="cctv-lens"></div> @endif
 
                 @if($hasChildren)
-                    <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30"><svg id="arrow-{{ $monitor->id }}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30"><i id="arrow-{{ $monitor->id }}" class="fa-solid fa-chevron-down w-5 h-5 transition-transform"></i></button>
                     <div id="badge-hidden-{{ $monitor->id }}" class="hidden absolute -bottom-18 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ">! CEK</div>
                 @endif
             </div>
