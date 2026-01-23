@@ -46,7 +46,7 @@ body {
     position: relative;
     overflow: hidden;
     padding: 2rem 1rem;
-    height: calc(100vh - 355px) !important;
+    height: calc(100vh - 315px) !important;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 2px solid #cbd5e1;
     border-radius: 1rem;
@@ -514,8 +514,8 @@ body {
     border-radius: 50% !important;
     border: 3px solid #e2e8f0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    width: 260px !important;
-    height: 260px !important;
+    width: 300px !important;
+    height: 300px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -816,7 +816,7 @@ body {
 }
 
 .down-alert-card .device-name {
-    font-weight: 900;
+    font-weight: 800;
     color: #1e293b;
     font-size: 0.95rem;
     white-space: nowrap;
