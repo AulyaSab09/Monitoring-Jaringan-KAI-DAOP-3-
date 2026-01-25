@@ -70,6 +70,11 @@
 
             <form action="{{ route('monitor.store') }}" method="POST" class="space-y-10">
                 @csrf
+                
+                {{-- Hidden parent_id untuk menandai device sebagai turunan --}}
+                @if(request('parent_id'))
+                    <input type="hidden" name="parent_id" value="{{ request('parent_id') }}">
+                @endif
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                     {{-- Nama Perangkat --}}

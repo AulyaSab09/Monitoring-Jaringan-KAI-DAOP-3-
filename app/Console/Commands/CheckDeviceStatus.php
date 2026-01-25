@@ -86,7 +86,7 @@ class CheckDeviceStatus extends Command
                         if ($lastIncident) {
                             $lastIncident->update([
                                 'up_at' => now(),
-                                'status' => $newStatus
+                                'status' => 'Connected' // Always 'Connected' when resolved
                             ]);
                         }
                     }

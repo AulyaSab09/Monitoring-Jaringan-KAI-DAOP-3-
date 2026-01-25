@@ -68,10 +68,12 @@
 
     <div class="tree-node" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
         <div class="tree-node-card group relative">
-            {{-- FLOATING IDENTITY LABEL --}}       
+            {{-- FLOATING IDENTITY LABEL --}}    
+            @if($type == 'router' || $type == 'switch')   
             <div class="floating-identity">
                 {{ $monitor->kode_lokasi ?? $loc }}
             </div>          
+            @endif
             <div id="card-{{ $monitor->id }}"
                  class="monitor-card relative shadow-md hover:shadow-2xl transition-all duration-300 {{ $statusBorderClass }} bg-white {{ $cardClass }} {{ $warningClass }}"
                  style="border-style: solid;"           data-history="{{ json_encode($monitor->history ?? []) }}"
