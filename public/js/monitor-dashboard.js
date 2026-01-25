@@ -561,7 +561,7 @@ function updateDownQueue() {
                     ${name}
                 </div>
                 <div class="text-[10px] text-red-500 font-bold italic mt-1">
-                    Mulai: ${timeString} WIB
+                    Down: ${timeString} WIB
                 </div>
             </div>
 

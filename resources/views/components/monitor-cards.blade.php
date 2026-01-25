@@ -85,10 +85,8 @@
                 {{-- DEVICE SPECIFIC DECORATIONS --}}
                 
                 @if($type == 'router')
-                    <div class="router-antenna left"></div>
-                    <div class="router-antenna right"></div>
                     <div class="router-body">
-                        <div class="router-leds">
+                        <div class="device-leds">
                             <div class="led {{ $ledColorClass }}"></div>
                             <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 1s"></div>
                             <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 2s"></div>
@@ -98,24 +96,32 @@
 
                 @if($type == 'switch')
                     <div class="switch-body">
-                @endif
-
-                @if($type == 'server')
-                    <div class="server-grill"></div>
-                    <div class="server-body">
-                        <div class="server-led-strip">
-                            <div class="server-led {{ $ledColorClass }}"></div>
-                            <div class="server-led {{ $ledColorClass }}"></div>
-                            <div class="server-led bg-blue-400"></div>
-                            <div class="server-led bg-slate-300"></div>
+                        <div class="device-leds">
+                            <div class="led {{ $ledColorClass }}"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 1s"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 2s"></div>
+                            <div class="led bg-blue-400"></div>
                         </div>
+
                 @endif
 
                 @if($type == 'pc')
                     <div class="pc-screen">
+                        <div class="device-leds">
+                            <div class="led {{ $ledColorClass }}"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 1s"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 2s"></div>
+                            <div class="led bg-blue-400"></div>
+                        </div>
                 @endif
 
                 @if($type == 'access point' || $type == 'ap')
+                <div class="device-leds">
+                            <div class="led {{ $ledColorClass }}"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 1s"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 2s"></div>
+                            <div class="led bg-blue-400"></div>
+                        </div>
                     <div class="ap-rings">
                         <div class="ap-ring"></div><div class="ap-ring"></div><div class="ap-ring"></div>
                     </div>
@@ -124,8 +130,13 @@
                 @endif
 
                 @if($type == 'cctv')
-                    <div class="cctv-led"></div>
                     <div class="cctv-body">
+                        <div class="device-leds">
+                            <div class="led {{ $ledColorClass }}"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 1s"></div>
+                            <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 2s"></div>
+                            <div class="led bg-blue-400"></div>
+                        </div>
                 @endif
 
                 {{-- MAIN CONTENT --}}
@@ -151,15 +162,6 @@
                             {{ strtoupper($monitor->type) }}
                         </p>
                     </div>
-
-                    {{-- SWITCH PORTS (Hanya menyala jika Connected) --}}
-                    @if($type == 'switch')
-                        <div class="port-grid mx-4">
-                            @for($i=0; $i<16; $i++)
-                                <div class="port {{ $i < 6 && $monitor->status == 'Connected' ? 'active' : '' }}"></div>
-                            @endfor
-                        </div>
-                    @endif
 
                     {{-- LATENCY DISPLAY (Berubah warna sesuai status) --}}
                     {{-- LATENCY DISPLAY - REVISED (Hapus variabel $s['text']) --}}

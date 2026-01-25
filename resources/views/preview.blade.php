@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sistem Monitoring Jaringan - KAI DAOP 3 Cirebon</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />        
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -59,28 +58,30 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-3">
-                        <a href="{{ route('monitor.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FF7300] text-white rounded-lg hover:opacity-90 transition-all text-sm font-bold shadow-md">
+                        <a href="{{ route('monitor.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#FF7300] text-white rounded-lg hover:opacity-90 transition-all text-lg font-bold shadow-md px-6 border-2 border-[#FF7300]">
                             <i class="fa-solid fa-plus"></i>
                             Tambah Device
+                        </a>
+
+                         {{-- 2. Tombol History (POSISI BARU: Di Tengah) --}}
+                        <a href="{{ route('history.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#001D4B] text-[#001D4B] text-white rounded-lg hover:opacity-90 transition-all text-lg font-bold shadow-md px-6 border-2 border-[#001D4B]">
+                            <i class="fa-solid fa-clock-rotate-left w-4 h-4 group-hover:text-white"></i>
+                            History
                         </a>
                         
                         <div class="relative" x-data="{ open: false }" @click.away="open = false">
                             <button @click="open = !open" 
-                                class="flex items-center space-x-2 bg-white border-2 border-[#001D4B] py-2 px-4 rounded-lg shadow-sm hover:bg-[#001D4B] hover:text-white transition-all group">
-                                <i class="fa-solid fa-user w-5 h-5 text-[#001D4B] group-hover:text-white"></i>
-                                <span class="text-sm font-bold text-[#001D4B] group-hover:text-white">{{ Auth::user()->name }}</span>
-                                <i class="fa-solid fa-chevron-down w-4 h-4 text-[#001D4B] group-hover:text-white transition-transform" :class="{ 'rotate-180': open }"></i>
+                                class="flex items-center space-x-2 bg-white border-2 border-[#001D4B] py-2 px-4 rounded-lg shadow-sm transition-all group">
+                                <i class="fa-solid fa-user w-5 h-5 text-[#001D4B]"></i>
+                                <span class="text-lg font-bold text-[#001D4B]">{{ Auth::user()->name }}</span>
+                                <i class="fa-solid fa-chevron-down w-4 h-4 text-[#001D4B] transition-transform" :class="{ 'rotate-180': open }"></i>
                             </button>
 
                             <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50 overflow-hidden">
-                                <a href="{{ route('history.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-[#001D4B] hover:text-white transition">
-                                    <i class="fa-solid fa-clock-rotate-left w-4 h-4 mr-3"></i>
-                                    History
-                                </a>
                                 <hr class="my-1 border-gray-100">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                                    <button type="submit" class="flex w-full items-center px-4 py-2 text-lg text-red-600 hover:bg-red-50 transition">
                                         <i class="fa-solid fa-right-from-bracket w-4 h-4 mr-3 text-red-500"></i>
                                         Logout
                                     </button>
