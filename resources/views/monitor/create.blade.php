@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tambah Device - KAI DAOP 3 Cirebon</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />        
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     .bg-kai-navy { background-color: #001D4B; }
@@ -55,80 +57,83 @@
             </div>
     </div>
 
-    {{-- KOLOM KANAN: Form Input (Sisi Form yang Lebih Luas) --}}
-<div class="w-full lg:w-8/12 flex items-center justify-center p-8 md:p-16 bg-white overflow-y-auto">
-    <div class="w-full max-w-2xl">
-        
-        {{-- Header Form --}}
-        <div class="mb-10">
-            <h2 class="text-3xl font-black text-kai-navy uppercase tracking-tight">Detail Perangkat</h2>
-            <p class="text-gray-400 font-medium italic mt-1">Lengkapi informasi di bawah untuk mendaftarkan unit monitoring baru.</p>
-        </div>
-
-        <form action="{{ route('monitor.store') }}" method="POST" class="space-y-6">
-            @csrf
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Nama Perangkat --}}
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-kai-navy opacity-70">Nama Unit</label>
-                    <input type="text" name="name" placeholder="Contoh: SW-CIREBON-01" 
-                           class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-kai-navy focus:bg-white outline-none transition-all font-bold text-kai-navy placeholder:font-normal placeholder:text-gray-300" required>
-                </div>
-
-                {{-- IP Address --}}
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-kai-navy opacity-70">Alamat IP (IPv4)</label>
-                    <input type="text" name="ip_address" placeholder="192.168.x.x" 
-                           class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-kai-navy focus:bg-white outline-none transition-all font-bold text-kai-navy placeholder:font-normal placeholder:text-gray-300" required>
-                </div>
+    {{-- KOLOM KANAN --}}
+    <div class="w-full lg:w-9/12 flex items-center justify-center p-8 md:p-12 bg-white overflow-y-auto">
+        {{-- 1. Kontainer --}}
+        <div class="w-full max-w-6xl px-10">
+            
+            {{-- Header Form diperbesar --}}
+            <div class="mb-12">
+                <h2 class="text-5xl font-black text-kai-navy uppercase">Detail Perangkat</h2>
+                <p class="text-xl text-gray-400 font-medium italic mt-2">Lengkapi informasi di bawah untuk mendaftarkan unit monitoring baru.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Tipe Perangkat --}}
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-kai-navy opacity-70">Kategori Hardware</label>
-                    <div class="relative">
-                        <select name="type" class="w-full appearance-none px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-kai-navy focus:bg-white outline-none transition-all font-bold text-kai-navy cursor-pointer">
-                            <option value="Router">Router</option>
-                            <option value="Switch">Switch</option>
-                            <option value="Access Point">Access Point</option>
-                            <option value="PC">PC / Client</option>
-                            <option value="CCTV">CCTV</option>
-                        </select>
-                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-kai-navy opacity-50 pointer-events-none text-xs"></i>
+            <form action="{{ route('monitor.store') }}" method="POST" class="space-y-10">
+                @csrf
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    {{-- Nama Perangkat --}}
+                    <div class="space-y-3">
+                        <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Nama Perangkat</label>
+                        {{-- p-4 dan text-xl membuat input terasa lebih besar dan mewah --}}
+                        <input type="text" name="name" placeholder="Contoh: SW-CIREBON-01" 
+                              class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none" required>
+                    </div>
+
+                    {{-- IP Address --}}
+                    <div class="space-y-3">
+                        <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Alamat IP (IPv4)</label>
+                        <input type="text" name="ip_address" placeholder="192.168.x.x" 
+                             class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none" required>
                     </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Lokasi --}}
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-kai-navy opacity-70">Lokasi Penempatan</label>
-                    <input type="text" name="location" placeholder="Stasiun / Ruang Server" 
-                           class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-kai-navy focus:bg-white outline-none transition-all font-bold text-kai-navy placeholder:font-normal placeholder:text-gray-300">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    {{-- Lokasi Stasiun --}}
+                    <div class="space-y-3">
+                        <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Lokasi Stasiun</label>
+                        <input type="text" name="location" placeholder="Stasiun Cirebon" 
+                              class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none" required>
+                    </div>
+
+                    {{-- Kode Stasiun --}}
+                    <div class="space-y-3">
+                        <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Kode Stasiun</label>
+                        <input type="text" name="kode_lokasi" placeholder="Contoh: CN / CNP" 
+                              class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none" required>
+                    </div>
                 </div>
 
-                {{-- Kode Lokasi --}}
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-kai-navy opacity-70">Kode Singkatan</label>
-                    <input type="text" name="kode_lokasi" placeholder="Contoh: CN / CNP" 
-                           class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-kai-navy focus:bg-white outline-none transition-all font-bold text-kai-navy placeholder:font-normal placeholder:text-gray-300">
+                <div class="full-width">
+                    {{-- Kategori Perangkat --}}
+                    <div class="space-y-3">
+                        <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Kategori Perangkat</label>
+                        <div class="relative">
+                            <select name="type" 
+                                class="w-full appearance-none px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none transition-all font-bold text-2xl text-kai-navy cursor-pointer shadow-sm">
+                                <option value="Router">Router</option>
+                                <option value="Switch">Switch</option>
+                                <option value="Access Point">Access Point</option>
+                                <option value="PC">PC / Client</option>
+                                <option value="CCTV">CCTV</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-kai-navy opacity-50 pointer-events-none text-lg"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Actions --}}
-            <div class="pt-8 flex flex-col md:flex-row items-center gap-6">
-                <button type="submit" class="w-full md:w-auto bg-kai-orange hover:bg-orange-600 text-white font-black px-10 py-4 rounded-xl shadow-xl shadow-orange-100 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3 transform hover:-translate-y-1">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Daftarkan Perangkat
-                </button>
-                <a href="{{ route('monitor.index') }}" class="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.2em]">
-                    Batalkan Pendaftaran
-                </a>
-            </div>
-        </form>
+                {{-- Actions Diperbesar --}}
+                <div class="pt-12 flex flex-col md:flex-row items-center gap-8">
+                    <button type="submit" class="w-full md:w-auto bg-kai-orange hover:bg-orange-600 text-white font-black px-16 py-6 rounded-2xl shadow-2xl shadow-orange-200 transition-all uppercase tracking-widest text-lg flex items-center justify-center gap-4">
+                       Tambahkan Device
+                    </button>
+                    <a href="{{ route('monitor.index') }}" class="text-sm font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.3em]">
+                        Batalkan
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
   </div>
 </body>
 </html>

@@ -34,14 +34,67 @@
                         DASHBOARD
                     </a>
 
-                    <form action="{{ route('history.reset') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus SEMUA riwayat insiden? Tindakan ini tidak dapat dibatalkan.');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="flex items-center gap-3 px-8 py-3.5 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all font-black text-sm shadow-xl shadow-red-900/20 tracking-widest uppercase">
-                            <i class="fa-solid fa-trash-can text-lg"></i>
-                            RESET
-                        </button>
-                    </form>
+                   {{-- Container Dropdown Reset --}}
+                    <div class="relative inline-block text-left" x-data="{ open: false }">
+                        {{-- Tombol Utama --}}
+                        <div class="flex items-center">
+                            <button type="button" @click="open = !open" 
+                                    class="flex items-center gap-3 px-6 py-3.5 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all font-black text-sm shadow-xl shadow-red-900/20 tracking-widest uppercase">
+                                <i class="fa-solid fa-trash-can text-lg"></i>
+                                Hapus Riwayat
+                                <i class="fa-solid fa-chevron-down text-xs ml-2 transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                            </button>
+                        </div>
+
+                        {{-- Panel Dropdown Pilihan Waktu --}}
+                        <div x-show="open" @click.away="open = false" 
+                            class="absolute right-0 mt-3 w-64 bg-white border-2 border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100">
+                            
+                            <div class="p-4 bg-gray-50 border-b border-gray-100">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Pilih Periode Hapus</span>
+                            </div>
+
+                            <div class="p-2">
+                                <form action="{{ route('history.reset') }}" method="POST" onsubmit="return confirm('Hapus riwayat 1 minggu terakhir?')">
+                                    @csrf @method('DELETE')
+                                    <input type="hidden" name="period" value="1_week">
+                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors">
+                                        <i class="fa-solid fa-calendar-week mr-3 opacity-50"></i> 1 Minggu Terakhir
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('history.reset') }}" method="POST" onsubmit="return confirm('Hapus riwayat 1 bulan terakhir?')">
+                                    @csrf @method('DELETE')
+                                    <input type="hidden" name="period" value="1_month">
+                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors">
+                                        <i class="fa-solid fa-calendar-days mr-3 opacity-50"></i> 1 Bulan Terakhir
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('history.reset') }}" method="POST" onsubmit="return confirm('Hapus riwayat 1 tahun terakhir?')">
+                                    @csrf @method('DELETE')
+                                    <input type="hidden" name="period" value="1_year">
+                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors">
+                                        <i class="fa-solid fa-boxes-packing mr-3 opacity-50"></i> 1 Tahun Terakhir
+                                    </button>
+                                </form>
+
+                                <div class="my-2 border-t border-gray-100"></div>
+
+                                {{-- Form Hapus Semua (Bahaya) --}}
+                                <form action="{{ route('history.reset') }}" method="POST" onsubmit="return confirm('PERINGATAN: Semua riwayat akan dihapus')">
+                                    @csrf @method('DELETE')
+                                    <input type="hidden" name="period" value="all">
+                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm font-black text-red-600 hover:bg-red-600 hover:text-white rounded-xl transition-all">
+                                       <i class="fa-solid fa-triangle-exclamation "></i> Hapus Semua Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -82,7 +135,7 @@
                                     </button>
                                 </div>
                                 <button type="submit" class="h-14 px-10 bg-orange-500 text-white rounded-2xl shadow-lg shadow-orange-100 flex items-center gap-3 font-black text-sm tracking-widest hover:bg-orange-600 transition-all uppercase">
-                                    <i class="fa-solid fa-filter text-lg"></i>
+                                    <i class="fa-solid fa-search text-lg"></i>
                                     CARI
                                 </button>
                             </div>
