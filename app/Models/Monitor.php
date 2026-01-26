@@ -15,6 +15,7 @@ class Monitor extends Model
         'location',
         'kode_lokasi',
         'ip_address',
+        'zone',
         'status',
         'latency',
         'parent_id',
@@ -55,5 +56,29 @@ class Monitor extends Model
     public function latestIncident()
     {
         return $this->hasOne(Incident::class)->latestOfMany('down_at');
+    }
+
+    /**
+     * Scope untuk device Center
+     */
+    public function scopeCenter($query)
+    {
+        return $query->where('zone', 'center');
+    }
+
+    /**
+     * Scope untuk device Lintas Utara
+     */
+    public function scopeLintasUtara($query)
+    {
+        return $query->where('zone', 'lintas utara');
+    }
+
+    /**
+     * Scope untuk device Lintas Selatan
+     */
+    public function scopeLintasSelatan($query)
+    {
+        return $query->where('zone', 'lintas selatan');
     }
 }

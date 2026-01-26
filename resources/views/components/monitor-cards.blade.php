@@ -9,6 +9,8 @@
         $s = $colors[$monitor->status] ?? $colors['Pending'];
         $loc = $monitor->location ? strtoupper(substr($monitor->location, 0, 3)) : 'UNK';
         $hasChildren = $monitor->children && $monitor->children->count() > 0;
+        // Get zone for layout logic - use inherited parentZone if available (for children) 
+        $zone = strtolower($parentZone ?? $monitor->zone ?? 'center');
 
         $warningClass = '';
         if ($hasChildren) {
@@ -66,22 +68,27 @@
         }
     @endphp
 
-    <div class="tree-node" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
+    {{-- For Lintas Utara: flex-col-reverse makes children appear ABOVE parent --}}
+    <div class="tree-node {{ $zone == 'lintas utara' ? 'flex-col-reverse' : '' }}" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
         <div class="tree-node-card group relative">
             {{-- FLOATING IDENTITY LABEL --}}    
             @if($type == 'router' || $type == 'switch')   
-            <div class="floating-identity">
+            {{-- For Lintas Utara: floating label at BOTTOM, else at TOP --}}
+            <div class="floating-identity {{ $zone == 'lintas utara' ? 'floating-identity-bottom' : '' }}">
                 {{ $monitor->kode_lokasi ?? $loc }}
             </div>          
             @endif
             <div id="card-{{ $monitor->id }}"
                  class="monitor-card relative shadow-md hover:shadow-2xl transition-all duration-300 {{ $statusBorderClass }} bg-white {{ $cardClass }} {{ $warningClass }}"
-                 style="border-style: solid;"           data-history="{{ json_encode($monitor->history ?? []) }}"
+                 style="border-style: solid;"
+                 data-history="{{ json_encode($monitor->history ?? []) }}"
                  data-ip="{{ $monitor->ip_address }}"
                  data-id="{{ $monitor->id }}"
                  data-type="{{ $monitor->type }}"
                  data-status="{{ $s['line'] }}"
                  data-latency="{{ $monitor->latency }}"
+                 data-station="{{ $monitor->location ?? '-' }}"
+                 data-name="{{ $monitor->name }}"
                  data-down-since="{{ $monitor->latestIncident && $monitor->status == 'Disconnected' ? $monitor->latestIncident->down_at : $monitor->updated_at }}">
 
                 {{-- DEVICE SPECIFIC DECORATIONS --}}
@@ -205,7 +212,8 @@
 
         @if($hasChildren)
             <div id="children-{{ $monitor->id }}" class="tree-children transition-all origin-top">
-                @include('components.monitor-cards', ['monitors' => $monitor->children])
+                {{-- Pass parent's zone to children so they also render with correct layout --}}
+                @include('components.monitor-cards', ['monitors' => $monitor->children, 'parentZone' => $zone])
             </div>
         @endif
     </div>

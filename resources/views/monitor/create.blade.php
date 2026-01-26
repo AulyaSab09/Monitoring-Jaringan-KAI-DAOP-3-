@@ -122,9 +122,30 @@
                                 <option value="PC">PC / Client</option>
                                 <option value="CCTV">CCTV</option>
                             </select>
+                            </select>
                             <i class="fa-solid fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-kai-navy opacity-50 pointer-events-none text-lg"></i>
                         </div>
                     </div>
+
+                    {{-- Zona Perangkat (ONLY for root devices, NOT for children) --}}
+                    @if(!request('parent_id'))
+                    <div class="space-y-3 mt-10">
+                        <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Zona Jalur</label>
+                        <div class="relative">
+                            <select name="zone" 
+                                class="w-full appearance-none px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none transition-all font-bold text-2xl text-kai-navy cursor-pointer shadow-sm">
+                                <option value="center" {{ old('zone') == 'center' ? 'selected' : '' }}>Pusat (Center)</option>
+                                <option value="lintas utara" {{ old('zone') == 'lintas utara' ? 'selected' : '' }}>Lintas Utara</option>
+                                <option value="lintas selatan" {{ old('zone') == 'lintas selatan' ? 'selected' : '' }}>Lintas Selatan</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-kai-navy opacity-50 pointer-events-none text-lg"></i>
+                        </div>
+                        {{-- Error Message for Zone (if any specific error) --}}
+                        @if ($errors->has('error'))
+                            <p class="text-red-500 font-bold mt-2">{{ $errors->first('error') }}</p>
+                        @endif
+                    </div>
+                    @endif
                 </div>
 
                 {{-- Actions Diperbesar --}}

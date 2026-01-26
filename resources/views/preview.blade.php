@@ -117,8 +117,8 @@
                 <div id="tree-viewport" class="tree-viewport">
                     <svg id="tree-lines-svg" class="tree-lines-svg"></svg>
                     
-                    <div id="tree-wrapper" class="tree-wrapper">
-                        @include('components.monitor-cards', ['monitors' => $monitors])
+                    <div id="tree-wrapper" class="tree-wrapper w-full h-full">
+                        @include('components.monitor-zone-wrapper', compact('centers', 'utaras', 'selatans'))
                     </div>
                 </div>
             </div>

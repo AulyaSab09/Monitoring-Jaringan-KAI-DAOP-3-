@@ -28,6 +28,12 @@ body {
     letter-spacing: -2px;
 }
 
+/* Floating Identity at BOTTOM (for Lintas Utara) */
+.floating-identity-bottom {
+    top: auto !important;
+    bottom: -90px !important;
+}
+
 /* Penyeragaman font pada elemen spesifik kartu */
 .monitor-card .latency-value,
 .monitor-card .latency-unit,
@@ -213,16 +219,19 @@ body {
 }
 
 @keyframes glow-red {
-    0%, 100% { 
-        border-color: #ef4444; 
-        box-shadow: 0 0 5px #ef4444, inset 0 0 5px rgba(239, 68, 68, 0.2); 
+
+    0%,
+    100% {
+        border-color: #ef4444;
+        box-shadow: 0 0 5px #ef4444, inset 0 0 5px rgba(239, 68, 68, 0.2);
         opacity: 1;
     }
-    50% { 
-        border-color: #7f1d1d; 
-        box-shadow: 0 0 25px #ef4444, 0 0 40px #ef4444; 
+
+    50% {
+        border-color: #7f1d1d;
+        box-shadow: 0 0 25px #ef4444, 0 0 40px #ef4444;
         opacity: 0.9;
-        }
+    }
 }
 
 .latency-danger-pulse {
@@ -230,9 +239,19 @@ body {
 }
 
 @keyframes latency-glow {
-    0%, 100% { background-color: #fee2e2; border-color: #ef4444; }
-    50% { background-color: #ef4444; border-color: #7f1d1d; color: white !important; }
-}      
+
+    0%,
+    100% {
+        background-color: #fee2e2;
+        border-color: #ef4444;
+    }
+
+    50% {
+        background-color: #ef4444;
+        border-color: #7f1d1d;
+        color: white !important;
+    }
+}
 
 /* ============================================================
    DEVICE TYPES (Router, Switch, etc)
@@ -286,7 +305,7 @@ body {
 
 /* 2. SWITCH - Premium Rack Mount Style */
 .device-switch {
-   background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
     border-radius: 16px;
     border: 2px solid #e2e8f0;
     width: 240px;
