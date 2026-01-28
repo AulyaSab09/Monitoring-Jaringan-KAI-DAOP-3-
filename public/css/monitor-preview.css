@@ -121,6 +121,98 @@ body {
     position: relative;
 }
 
+/* ============================================================
+   ZONE-SPECIFIC LAYOUTS
+   ============================================================ */
+
+/* 1. REGULAR CENTER CHAIN (Horizontal) */
+#zone-center-regular {
+    align-items: flex-start !important;
+}
+
+#zone-center-regular>.tree-node {
+    flex-direction: column;
+    align-items: center;
+}
+
+#zone-center-regular>.tree-node>.tree-node-card {
+    margin-bottom: 4rem;
+}
+
+#zone-center-regular>.tree-node>.tree-children {
+    flex-direction: row;
+    gap: 3rem;
+}
+
+/* 2. TERMINAL CENTER (The Hub) */
+#zone-center-terminal>.tree-node {
+    flex-direction: row;
+    /* Horizontal layout: Card Left, Children Right */
+    align-items: center;
+    gap: 4rem;
+}
+
+#zone-center-terminal>.tree-node>.tree-node-card {
+    margin-bottom: 0;
+    margin-right: 0;
+}
+
+/* Children container extends to the RIGHT, but children themselves stack Vertically */
+#zone-center-terminal>.tree-node>.tree-children {
+    flex-direction: column;
+    /* Stack children vertically */
+    gap: 2rem;
+    margin-top: 0;
+    margin-left: 0;
+}
+
+/* 3. LINTAS ZONES (Vertical Stack in Hub) */
+/* LINTAS UTARA: Main device at bottom, children grow UP */
+#zone-utara>.tree-node {
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+#zone-utara>.tree-node>.tree-node-card {
+    margin-bottom: 0;
+    margin-top: 4rem;
+}
+
+#zone-utara>.tree-node>.tree-children {
+    flex-direction: row;
+    gap: 2rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+#zone-utara .tree-children .tree-node {
+    flex-direction: column-reverse;
+}
+
+#zone-utara .tree-children .tree-node-card {
+    margin-bottom: 0;
+    margin-top: 3rem;
+}
+
+/* LINTAS SELATAN: Main device at top, children grow DOWN */
+#zone-selatan>.tree-node {
+    flex-direction: column;
+    align-items: center;
+}
+
+#zone-selatan>.tree-node>.tree-node-card {
+    margin-bottom: 4rem;
+}
+
+#zone-selatan>.tree-node>.tree-children {
+    flex-direction: row;
+    gap: 2rem;
+}
+
+#zone-selatan .tree-children .tree-node-card {
+    margin-bottom: 3rem;
+}
+
 .tree-node-card {
     position: relative;
     z-index: 2;

@@ -221,7 +221,7 @@ window.enableSound = enableSound;
 window.toggleBranch = toggleBranch;
 
 // ==========================================
-// 4. GAMBAR GARIS OTOMATIS WARNA
+// 4. GAMBAR GARIS OTOMATIS WARNA (SUPPORT MULTI-DIRECTION)
 // ==========================================
 function drawTreeLines() {
     const svg = document.getElementById('tree-lines-svg');
@@ -231,7 +231,12 @@ function drawTreeLines() {
 
     const getPos = (el) => {
         let x = 0, y = 0, w = el.offsetWidth, h = el.offsetHeight;
-        while (el && el !== viewport) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; }
+        let curr = el;
+        while (curr && curr !== viewport) {
+            x += curr.offsetLeft;
+            y += curr.offsetTop;
+            curr = curr.offsetParent;
+        }
         return { x, y, w, h, cx: x + w / 2, cy: y + h / 2 };
     };
 
@@ -239,31 +244,85 @@ function drawTreeLines() {
         const parentCard = node.querySelector(':scope > .tree-node-card .monitor-card');
         const childrenContainer = node.querySelector(':scope > .tree-children');
 
+        // Detect Zone
+        const zone = node.closest('[id^="zone-"]');
+        const zoneId = zone ? zone.id : '';
+
         if (parentCard && childrenContainer && childrenContainer.style.display !== 'none') {
             const pPos = getPos(parentCard);
             const children = childrenContainer.querySelectorAll(':scope > .tree-node > .tree-node-card .monitor-card');
 
             if (children.length > 0) {
-                let minX = Infinity, maxX = -Infinity;
-                const midY = pPos.y + pPos.h + 20;
 
-                children.forEach(child => {
-                    const cPos = getPos(child);
-                    minX = Math.min(minX, cPos.cx);
-                    maxX = Math.max(maxX, cPos.cx);
+                // --- DIRECTION LOGIC ---
+                // Default: Down (Parent Top -> Children Bottom)
+                let direction = 'down';
+                if (zoneId === 'zone-utara') direction = 'up';
+                else if (zoneId === 'zone-center-terminal') direction = 'right';
 
-                    // AMBIL STATUS DARI CARD (CONNECTED/UNSTABLE/DISCONNECTED)
-                    const status = child.dataset.status || 'pending';
+                // Collect children positions
+                let cPositions = [];
+                children.forEach(child => cPositions.push({ el: child, pos: getPos(child) }));
 
-                    // Garis Vertikal Anak (Mengikuti Status Anak)
-                    createPath(`M ${cPos.cx} ${cPos.y} L ${cPos.cx} ${midY}`, status);
-                });
+                if (direction === 'down') {
+                    // STANDARD: Parent Top -> Children Below (Horizontal Spread)
+                    const midY = pPos.y + pPos.h + 20; // 20px below parent
+                    let minX = Infinity, maxX = -Infinity;
 
-                // Garis Induk Turun (Warna Netral/Pending)
-                createPath(`M ${pPos.cx} ${pPos.y + pPos.h} L ${pPos.cx} ${midY}`, 'pending');
+                    cPositions.forEach(item => {
+                        const cPos = item.pos;
+                        minX = Math.min(minX, cPos.cx);
+                        maxX = Math.max(maxX, cPos.cx);
+                        const status = item.el.dataset.status || 'pending';
+                        // Line from Child UP to midY
+                        createPath(`M ${cPos.cx} ${cPos.y} L ${cPos.cx} ${midY}`, status);
+                    });
 
-                // Garis Horizontal (Warna Netral/Pending)
-                if (minX !== Infinity) createPath(`M ${minX} ${midY} L ${maxX} ${midY}`, 'pending');
+                    // Line from Parent DOWN to midY
+                    createPath(`M ${pPos.cx} ${pPos.y + pPos.h} L ${pPos.cx} ${midY}`, 'pending');
+                    // Horizontal bar connecting children
+                    if (minX !== Infinity) createPath(`M ${minX} ${midY} L ${maxX} ${midY}`, 'pending');
+
+                } else if (direction === 'up') {
+                    // UTARA: Parent Bottom -> Children Above
+                    const midY = pPos.y - 20; // 20px above parent
+                    let minX = Infinity, maxX = -Infinity;
+
+                    cPositions.forEach(item => {
+                        const cPos = item.pos;
+                        minX = Math.min(minX, cPos.cx);
+                        maxX = Math.max(maxX, cPos.cx);
+                        const status = item.el.dataset.status || 'pending';
+                        // Line from Child DOWN to midY (Child is above)
+                        createPath(`M ${cPos.cx} ${cPos.y + cPos.h} L ${cPos.cx} ${midY}`, status);
+                    });
+
+                    // Line from Parent UP to midY
+                    createPath(`M ${pPos.cx} ${pPos.y} L ${pPos.cx} ${midY}`, 'pending');
+                    // Horizontal bar
+                    if (minX !== Infinity) createPath(`M ${minX} ${midY} L ${maxX} ${midY}`, 'pending');
+
+                } else if (direction === 'right') {
+                    // TERMINAL: Parent Left -> Children Right (Vertical layout of children to the right)
+                    // Logic: Parent Right -> MidX -> Vertical Bar -> Child Left
+
+                    const midX = pPos.x + pPos.w + 30; // 30px right of parent
+                    let minY = Infinity, maxY = -Infinity;
+
+                    cPositions.forEach(item => {
+                        const cPos = item.pos;
+                        minY = Math.min(minY, cPos.cy);
+                        maxY = Math.max(maxY, cPos.cy);
+                        const status = item.el.dataset.status || 'pending';
+                        // Line from Child LEFT to midX
+                        createPath(`M ${cPos.x} ${cPos.cy} L ${midX} ${cPos.cy}`, status);
+                    });
+
+                    // Line from Parent RIGHT to midX
+                    createPath(`M ${pPos.x + pPos.w} ${pPos.cy} L ${midX} ${pPos.cy}`, 'pending');
+                    // Vertical bar connecting the children's Y positions
+                    if (minY !== Infinity) createPath(`M ${midX} ${minY} L ${midX} ${maxY}`, 'pending');
+                }
             }
         }
     });

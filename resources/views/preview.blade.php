@@ -10,7 +10,7 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-        <link rel="stylesheet" href="{{ asset('css/monitor-preview.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/monitor-preview.css') }}?v={{ time() }}">
     </head>
     <body class="bg-gray-50 text-[#1b1b18] min-h-screen font-sans py-4" data-monitor-data-url="{{ route('monitor.data') }}">
         <div class="max-w-auto mx-auto px-4">
@@ -150,6 +150,6 @@
             </div>
         </div>
             
-        <script src="{{ asset('js/monitor-dashboard.js') }}"></script>
+        <script src="{{ asset('js/monitor-dashboard.js') }}?v={{ time() }}"></script>
     </body>
 </html>

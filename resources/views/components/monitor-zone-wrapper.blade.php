@@ -1,28 +1,65 @@
-<div class="relative w-full min-h-full flex flex-row items-start justify-start p-10 gap-12">
-    
-    {{-- Container Left: Center Zone --}}
-    <div id="zone-center" class="flex flex-row gap-8 items-start justify-start z-10">
-        @include('components.monitor-cards', ['monitors' => $centers])
-    </div>
+@php
+    // Split Centers: Regular (Horizontal Chain) vs Terminal (The Hub)
+    // Jika hanya ada 1 device, dia jadi terminal langsung.
+    $regularCenters = $centers->count() > 1 ? $centers->slice(0, $centers->count() - 1) : collect([]);
+    $terminalCenter = $centers->last();
+@endphp
 
-    {{-- Container Right: Branches (Utara & Selatan stacked vertically) --}}
-    <div class="flex flex-col gap-10 z-10">
-        
-        {{-- Lintas Utara - items-end so main devices sit at bottom (aligned with Center) --}}
-        <div id="zone-utara" class="flex flex-row gap-8 items-end justify-start relative px-8 pt-8 pb-4 bg-blue-50/50 rounded-2xl border border-blue-200 min-h-[100px]">
-            <div class="absolute -bottom-3 left-4 bg-blue-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">Lintas Utara</div>
-            @if($utaras->count() > 0)
-                @include('components.monitor-cards', ['monitors' => $utaras, 'parentZone' => 'lintas utara'])
+{{-- MAIN WRAPPER: Flex Row (2 Independent Columns) --}}
+{{-- items-start ensures top of Regular Chain aligns with top of Terminal (since Utara is absolute/negative margin) --}}
+<div class="relative w-full min-h-full p-10 flex flex-row gap-8 items-start justify-start pt-40">
+    {{-- pt-40 gives space for the Absolute Utara component above --}}
+
+    {{-- COL 1: Regular Center Chain --}}
+    @if ($regularCenters->count() > 0)
+        <div id="zone-center-regular" class="flex flex-row gap-8 items-start justify-end z-10">
+            @include('components.monitor-cards', ['monitors' => $regularCenters, 'parentZone' => 'center'])
+        </div>
+    @endif
+
+    {{-- COL 2: HUB (Terminal) --}}
+    {{-- Relative container for aligning Hub parts --}}
+    <div id="hub-column" class="relative flex flex-col items-center z-10">
+
+        {{-- Lintas Utara: Absolute Top, growing Up --}}
+        {{-- bottom-full moves it right above the Terminal --}}
+        <div id="zone-utara"
+            class="absolute bottom-full mb-8 left-1/2 -translate-x-1/2 flex flex-row gap-8 items-end justify-center px-8 pt-8 pb-6 bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-2xl border border-blue-200/80 min-h-[120px] shadow-sm whitespace-nowrap">
+            <div
+                class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                Lintas Utara</div>
+            @if ($utaras->count() > 0)
+                @include('components.monitor-cards', [
+                    'monitors' => $utaras,
+                    'parentZone' => 'lintas utara',
+                ])
             @else
                 <div class="text-gray-400 italic text-sm py-4">Tidak ada device</div>
             @endif
         </div>
 
-        {{-- Lintas Selatan - items-start so children grow downward --}}
-        <div id="zone-selatan" class="flex flex-row gap-8 items-start justify-start relative px-8 pt-8 pb-4 bg-orange-50/50 rounded-2xl border border-orange-200 min-h-[100px]">
-            <div class="absolute -top-3 left-4 bg-orange-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">Lintas Selatan</div>
-            @if($selatans->count() > 0)
-                @include('components.monitor-cards', ['monitors' => $selatans, 'parentZone' => 'lintas selatan'])
+        {{-- Terminal Center (The Pivot) --}}
+        @if ($terminalCenter)
+            <div id="zone-center-terminal" class="relative z-20">
+                @include('components.monitor-cards', [
+                    'monitors' => collect([$terminalCenter]),
+                    'parentZone' => 'center-terminal',
+                ])
+            </div>
+        @endif
+
+        {{-- Lintas Selatan: Standard Flow Below --}}
+        {{-- mt-4 controls distance from Terminal --}}
+        <div id="zone-selatan"
+            class="mt-8 flex flex-row gap-8 items-start justify-center relative px-8 pt-6 pb-8 bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-2xl border border-orange-200/80 min-h-[120px] shadow-sm">
+            <div
+                class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                Lintas Selatan</div>
+            @if ($selatans->count() > 0)
+                @include('components.monitor-cards', [
+                    'monitors' => $selatans,
+                    'parentZone' => 'lintas selatan',
+                ])
             @else
                 <div class="text-gray-400 italic text-sm py-4">Tidak ada device</div>
             @endif
@@ -30,117 +67,118 @@
 
     </div>
 
-    {{-- SVG Lines Layer (Absolute to Wrapper) --}}
-    <svg id="zone-lines-svg" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible" style="z-index: 0;">
-        <!-- Lines will be drawn here by JS -->
+    {{-- SVG Lines Layer --}}
+    <svg id="zone-lines-svg" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+        style="z-index: 0;">
+        <!-- JS will populate paths -->
     </svg>
 
 </div>
 
 <script>
-    // Simple script to draw lines on load
     document.addEventListener("DOMContentLoaded", () => {
         drawZoneLines();
     });
-
-    // Re-draw on window resize
     window.addEventListener('resize', drawZoneLines);
 
     function drawZoneLines() {
         const svg = document.getElementById('zone-lines-svg');
-        const centerZone = document.getElementById('zone-center');
+        const regularZone = document.getElementById('zone-center-regular');
+        const terminalZone = document.getElementById('zone-center-terminal');
         const utaraZone = document.getElementById('zone-utara');
         const selatanZone = document.getElementById('zone-selatan');
-        
-        if(!svg || !centerZone) return;
+
+        if (!svg) return;
 
         // Clear existing lines
         while (svg.firstChild) {
             svg.removeChild(svg.firstChild);
         }
 
-        // Helper to get center point of element relative to wrapper
-        // Helper to get center point of element relative to wrapper
         function getCenter(el) {
+            if (!el) return {
+                x: 0,
+                y: 0,
+                right: 0,
+                left: 0,
+                bottom: 0,
+                top: 0
+            };
             const rect = el.getBoundingClientRect();
             const wrapperRect = svg.getBoundingClientRect();
             return {
                 x: (rect.left + rect.width / 2) - wrapperRect.left,
                 y: (rect.top + rect.height / 2) - wrapperRect.top,
-                right: (rect.right) - wrapperRect.left, // Right edge
+                right: (rect.right) - wrapperRect.left,
                 left: (rect.left) - wrapperRect.left,
-                bottom: (rect.bottom) - wrapperRect.top, // Bottom Edge
-                top: (rect.top) - wrapperRect.top // Top Edge
+                bottom: (rect.bottom) - wrapperRect.top,
+                top: (rect.top) - wrapperRect.top
             };
         }
 
-        // --- CORE LOGIC: Connect to the LAST ROOT device in Center Zone ---
-        // Use :scope selector to only get direct descendants, not nested children
-        // Structure: zone-center > .tree-node > .tree-node-card
-        const centerRootNodes = centerZone.querySelectorAll(':scope > .tree-node');
-        let sourcePoint;
+        let hubInputPoint = null;
 
-        if (centerRootNodes.length > 0) {
-            // Get the last ROOT device's card
-            const lastRootNode = centerRootNodes[centerRootNodes.length - 1];
-            const lastDeviceCard = lastRootNode.querySelector(':scope > .tree-node-card');
-            
-            if (lastDeviceCard) {
-                const lastDeviceRect = getCenter(lastDeviceCard);
-                sourcePoint = {
-                    x: lastDeviceRect.x,
-                    y: lastDeviceRect.y,
-                    right: lastDeviceRect.right,
-                    left: lastDeviceRect.left
-                };
-            } else {
-                sourcePoint = getCenter(centerZone);
-            }
-        } else {
-            // Fallback if no devices, use center of container
-            sourcePoint = getCenter(centerZone);
-        }
-        
-        // Draw Line to Utara - target the FIRST ROOT device in Utara
-        const utaraRootNodes = utaraZone ? utaraZone.querySelectorAll(':scope > .tree-node') : [];
-        if (utaraRootNodes.length > 0) { 
-            const firstUtaraNode = utaraRootNodes[0];
-            const firstUtaraCard = firstUtaraNode.querySelector(':scope > .tree-node-card');
-            
-            if (firstUtaraCard) {
-                const utaraPoint = getCenter(firstUtaraCard);
-                createPath(sourcePoint.right, sourcePoint.y, utaraPoint.left, utaraPoint.y, '#3b82f6'); 
-            }
-        }
+        // 1. Connect Regular Chain to Terminal -> DISABLED As per user request
+        // if (regularZone && terminalZone) { ... }
 
-        // Draw Line to Selatan - target the FIRST ROOT device in Selatan
-        const selatanRootNodes = selatanZone ? selatanZone.querySelectorAll(':scope > .tree-node') : [];
-        if (selatanRootNodes.length > 0) {
-            const firstSelatanNode = selatanRootNodes[0];
-            const firstSelatanCard = firstSelatanNode.querySelector(':scope > .tree-node-card');
+        // 2. Connect Terminal to Utara and Selatan
+        if (terminalZone) {
+            const terminalRootNodes = terminalZone.querySelectorAll(':scope > .tree-node');
+            const terminalCard = terminalRootNodes[0]?.querySelector(':scope > .tree-node-card');
 
-            if (firstSelatanCard) {
-                const selatanPoint = getCenter(firstSelatanCard);
-                createPath(sourcePoint.right, sourcePoint.y, selatanPoint.left, selatanPoint.y, '#f97316'); 
+            if (terminalCard) {
+                const termPos = getCenter(terminalCard);
+
+                // To Utara (Connect Top of Terminal to Bottom of First Utara)
+                if (utaraZone) {
+                    const utaraNodes = utaraZone.querySelectorAll(':scope > .tree-node');
+                    if (utaraNodes.length > 0) {
+                        const firstUtaraCard = utaraNodes[0].querySelector(':scope > .tree-node-card');
+                        if (firstUtaraCard) {
+                            const uPos = getCenter(firstUtaraCard);
+                            createPath(termPos.x, termPos.top, uPos.x, uPos.bottom, '#3b82f6'); // Blue
+                        }
+                    }
+                }
+
+                // To Selatan (Connect Bottom of Terminal to Top of First Selatan)
+                if (selatanZone) {
+                    const selatanNodes = selatanZone.querySelectorAll(':scope > .tree-node');
+                    if (selatanNodes.length > 0) {
+                        const firstSelatanCard = selatanNodes[0].querySelector(':scope > .tree-node-card');
+                        if (firstSelatanCard) {
+                            const sPos = getCenter(firstSelatanCard);
+                            createPath(termPos.x, termPos.bottom, sPos.x, sPos.top, '#f97316'); // Orange
+                        }
+                    }
+                }
             }
         }
 
         function createPath(x1, y1, x2, y2, color) {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            // Curvy Line Logic
-            const midX = (x1 + x2) / 2;
-            const d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
-            
+            // Logic for vertical vs horizontal curves
+            // If vertically aligned (x similar), straight line or slight S
+            const isVertical = Math.abs(x1 - x2) < 50;
+
+            let d = '';
+            if (isVertical) {
+                const midY = (y1 + y2) / 2;
+                d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+            } else {
+                const midX = (x1 + x2) / 2;
+                d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+            }
+
             path.setAttribute('d', d);
             path.setAttribute('stroke', color);
             path.setAttribute('stroke-width', '4');
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke-linecap', 'round');
-            path.setAttribute('class', 'animate-pulse'); // Optional animation
+            path.setAttribute('class', 'animate-pulse');
             svg.appendChild(path);
         }
     }
-    
-    // Call drawZoneLines globally accessible for AJAX updates if needed
+
     window.drawZoneLines = drawZoneLines;
 </script>
