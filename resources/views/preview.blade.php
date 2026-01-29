@@ -63,7 +63,7 @@
                             Tambah Device
                         </a>
 
-                         {{-- 2. Tombol History (POSISI BARU: Di Tengah) --}}
+                         {{-- 2. Tombol History --}}
                         <a href="{{ route('history.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#001D4B] text-[#001D4B] text-white rounded-lg hover:opacity-90 transition-all text-lg font-bold shadow-md px-6 border-2 border-[#001D4B]">
                             <i class="fa-solid fa-clock-rotate-left w-4 h-4 group-hover:text-white"></i>
                             History
@@ -78,6 +78,10 @@
                             </button>
 
                             <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50 overflow-hidden">
+                                {{-- <a href="{{ route('profile') }}" class="flex items-center px-4 py-2 text-lg text-gray-700 hover:bg-[#001D4B] hover:text-white transition">
+                                    <i class="fa-solid fa-id-card-vertical w-4 h-4 mr-3"></i>
+                                    Profile
+                                </a> --}}
                                 <hr class="my-1 border-gray-100">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

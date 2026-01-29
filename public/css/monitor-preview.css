@@ -31,7 +31,14 @@ body {
 /* Floating Identity at BOTTOM (for Lintas Utara) */
 .floating-identity-bottom {
     top: auto !important;
-    bottom: -90px !important;
+    bottom: -120px !important;
+}
+
+/* KHUSUS LINTAS SELATAN: Beri jarak ke ATAS */
+.floating-identity-selatan {
+    /* Gunakan top dengan nilai negatif yang besar agar melompati garis/badge */
+    top: -120px !important; 
+    bottom: auto !important;
 }
 
 /* Penyeragaman font pada elemen spesifik kartu */
