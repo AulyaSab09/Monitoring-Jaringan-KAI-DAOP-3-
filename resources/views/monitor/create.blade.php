@@ -15,8 +15,8 @@
   </style>
 </head>
 
-<body class="bg-white min-h-screen font-sans overflow-hidden">
-  <div class="flex min-h-screen">
+<body class="bg-white min-h-screen overflow-y-auto">
+  <div class="flex flex-col lg:flex-row min-h-screen">
     
     {{-- KOLOM KIRI --}}
     <div class="hidden lg:flex lg:w-3/12 bg-[#CC5C00] relative flex-col justify-between p-10 text-white overflow-hidden">
@@ -39,13 +39,17 @@
             {{-- 2. TAMBAH DEVICE --}}
             <div class="text-center mb-8 w-full">
                 <h1 class="text-5xl font-black uppercase">
-                    Tambah Device 
+                    {{ request('parent_id') ? 'Tambah Anakan' : 'Tambah Device' }}                
                 </h1>
             </div>
 
             {{-- 3. Keterangan --}}
             <p class="text-lg opacity-95 font-medium leading-relaxed w-full text-justify px-1">
-                Perluas jangkauan monitoring jaringan Anda. Masukkan parameter perangkat baru untuk integrasi sistem otomatis guna memastikan performa infrastruktur digital tetap optimal.
+                @if(request('parent_id'))
+                    Anda sedang menambahkan perangkat turunan (downstream). Perangkat ini akan terhubung secara hirarki dan memantau jalur distribusi dari perangkat induknya.
+                @else
+                    Perluas jangkauan monitoring jaringan Anda. Masukkan parameter perangkat baru untuk integrasi sistem otomatis guna memastikan performa infrastruktur digital tetap optimal.
+                @endif
             </p>
         </div>
 
@@ -58,14 +62,26 @@
     </div>
 
     {{-- KOLOM KANAN --}}
-    <div class="w-full lg:w-9/12 flex items-center justify-center p-8 md:p-12 bg-white overflow-y-auto">
+    <div class="w-full lg:w-9/12 flex items-start justify-center p-8 md:p-12 bg-white min-h-full">
         {{-- 1. Kontainer --}}
-        <div class="w-full max-w-6xl px-10">
+        <div class="w-full max-w-6xl px-10 py-10">
             
             {{-- Header Form diperbesar --}}
             <div class="mb-12">
                 <h2 class="text-5xl font-black text-kai-navy uppercase">Detail Perangkat</h2>
-                <p class="text-xl text-gray-400 font-medium italic mt-2">Lengkapi informasi di bawah untuk mendaftarkan unit monitoring baru.</p>
+                {{-- INDIKATOR PARENT (LOGIKA BARU) --}}
+                @if(request('parent_id'))
+                    @php $parent = \App\Models\Monitor::find(request('parent_id')); @endphp
+                    <div class="mt-4 inline-flex items-center gap-3 px-6 py-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-xl">
+                        <i class="fa-solid fa-sitemap text-blue-600"></i>
+                        <span class="text-blue-800 font-bold">
+                            Menambahkan anakan untuk induk: 
+                            <span class="uppercase underline decoration-2">{{ $parent ? $parent->name : 'Unknown Device' }}</span>
+                        </span>
+                    </div>
+                @else
+                    <p class="text-xl text-gray-400 font-medium italic mt-2">Lengkapi informasi di bawah untuk mendaftarkan unit monitoring baru.</p>
+                @endif
             </div>
 
             <form action="{{ route('monitor.store') }}" method="POST" class="space-y-10">
@@ -74,6 +90,10 @@
                 {{-- Hidden parent_id untuk menandai device sebagai turunan --}}
                 @if(request('parent_id'))
                     <input type="hidden" name="parent_id" value="{{ request('parent_id') }}">
+                    {{-- Otomatis set lokasi & kode agar tidak NULL di database jika field-nya dihapus di form --}}
+                    <input type="hidden" name="location" value="{{ $parent->location }}">
+                    <input type="hidden" name="kode_lokasi" value="{{ $parent->kode_lokasi }}">
+                    <input type="hidden" name="zone" value="{{ $parent->zone }}">
                 @endif
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -93,21 +113,22 @@
                     </div>
                 </div>
 
+                {{-- HANYA TAMPIL JIKA BUKAN ANAKAN --}}
+                @if(!request('parent_id'))
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    {{-- Lokasi Stasiun --}}
                     <div class="space-y-3">
                         <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Lokasi Stasiun</label>
                         <input type="text" name="location" placeholder="Stasiun Cirebon" 
-                              class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none" required>
+                               class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy outline-none" required>
                     </div>
 
-                    {{-- Kode Stasiun --}}
                     <div class="space-y-3">
                         <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Kode Stasiun</label>
                         <input type="text" name="kode_lokasi" placeholder="Contoh: CN / CNP" 
-                              class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none" required>
+                               class="w-full px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy outline-none" required>
                     </div>
                 </div>
+                @endif
 
                 <div class="full-width">
                     {{-- Kategori Perangkat --}}
@@ -127,31 +148,26 @@
                         </div>
                     </div>
 
-                    {{-- Zona Perangkat (ONLY for root devices, NOT for children) --}}
+                    {{-- Zona Jalur (Hanya untuk Root) --}}
                     @if(!request('parent_id'))
-                    <div class="space-y-3 mt-10">
+                    <div class="space-y-3">
                         <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Zona Jalur</label>
                         <div class="relative">
                             <select name="zone" 
-                                class="w-full appearance-none px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy placeholder:font-normal placeholder:text-gray-300 shadow-sm outline-none transition-all font-bold text-2xl text-kai-navy cursor-pointer shadow-sm">
-                                <option value="center" {{ old('zone') == 'center' ? 'selected' : '' }}>Pusat (Center)</option>
-                                <option value="lintas utara" {{ old('zone') == 'lintas utara' ? 'selected' : '' }}>Lintas Utara</option>
-                                <option value="lintas selatan" {{ old('zone') == 'lintas selatan' ? 'selected' : '' }}>Lintas Selatan</option>
+                                class="w-full appearance-none px-6 py-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-[#FF7300] focus:ring-4 focus:ring-orange-100 transition-all font-bold text-2xl text-kai-navy cursor-pointer outline-none">
+                                <option value="center">Pusat (Center)</option>
+                                <option value="lintas utara">Lintas Utara</option>
+                                <option value="lintas selatan">Lintas Selatan</option>
                             </select>
                             <i class="fa-solid fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-kai-navy opacity-50 pointer-events-none text-lg"></i>
                         </div>
-                        {{-- Error Message for Zone (if any specific error) --}}
-                        @if ($errors->has('error'))
-                            <p class="text-red-500 font-bold mt-2">{{ $errors->first('error') }}</p>
-                        @endif
                     </div>
                     @endif
                 </div>
 
-                {{-- Actions Diperbesar --}}
                 <div class="pt-12 flex flex-col md:flex-row items-center gap-8">
                     <button type="submit" class="w-full md:w-auto bg-kai-orange hover:bg-orange-600 text-white font-black px-16 py-6 rounded-2xl shadow-2xl shadow-orange-200 transition-all uppercase tracking-widest text-lg flex items-center justify-center gap-4">
-                       Tambahkan Device
+                       {{ request('parent_id') ? 'Hubungkan Anakan' : 'Tambahkan Device' }}
                     </button>
                     <a href="{{ route('monitor.index') }}" class="text-sm font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.3em]">
                         Batalkan
