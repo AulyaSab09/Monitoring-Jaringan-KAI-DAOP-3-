@@ -75,9 +75,9 @@
             {{-- FLOATING IDENTITY LABEL --}}    
             @if($type == 'router' || $type == 'switch')   
             {{-- For Lintas Utara: floating label at BOTTOM, else at TOP --}}
-            <div class="floating-identity {{ $zone == 'lintas utara' ? 'floating-identity-bottom' : '' }}">
+            <div class="floating-identity {{ $zone == 'lintas utara' ? 'floating-identity-bottom' : ($zone == 'lintas selatan' ? 'floating-identity-selatan' : 'floating-identity-top') }}">
                 {{ $monitor->kode_lokasi ?? $loc }}
-            </div>          
+            </div>        
             @endif
             <div id="card-{{ $monitor->id }}"
                  class="monitor-card relative shadow-md hover:shadow-2xl transition-all duration-300 {{ $statusBorderClass }} bg-white {{ $cardClass }} {{ $warningClass }}"

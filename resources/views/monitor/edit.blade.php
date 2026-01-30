@@ -15,8 +15,8 @@
   </style>
 </head>
 
-<body class="bg-white min-h-screen font-sans overflow-hidden">
-  <div class="flex min-h-screen">
+<body class="bg-white min-h-screen overflow-y-auto">
+  <div class="flex flex-col lg:flex-row min-h-screen">
     
     {{-- KOLOM KIRI --}}
     <div class="hidden lg:flex lg:w-3/12 bg-kai-navy relative flex-col justify-between p-10 text-white overflow-hidden">
@@ -58,10 +58,9 @@
     </div>
 
     {{-- KOLOM KANAN --}}
-    <div class="w-full lg:w-9/12 flex items-center justify-center p-8 md:p-12 bg-white overflow-y-auto">
+    <div class="w-full lg:w-9/12 flex items-start justify-center p-8 md:p-12 bg-white min-h-full">        
         {{-- 1. Kontainer --}}
-        <div class="w-full max-w-6xl px-10">
-            
+        <div class="w-full max-w-6xl px-10 py-10">            
             {{-- Header Form diperbesar --}}
             <div class="mb-12">
                 <h2 class="text-5xl font-black text-kai-navy uppercase">Edit Perangkat</h2>
@@ -172,7 +171,6 @@
                 {{-- Actions Diperbesar --}}
                 <div class="pt-12 flex flex-col md:flex-row items-center gap-8">
                     <button type="submit" class="w-full md:w-auto bg-kai-navy hover:bg-blue-900 text-white font-black px-16 py-6 rounded-2xl shadow-2xl shadow-blue-200 transition-all uppercase tracking-widest text-lg flex items-center justify-center gap-4">
-                        <i class="fa-solid fa-check"></i>
                        Update Device
                     </button>
                     <a href="{{ route('monitor.index') }}" class="text-sm font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.3em]">

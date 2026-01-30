@@ -24,10 +24,12 @@
         {{-- Lintas Utara: Absolute Top, growing Up --}}
         {{-- bottom-full moves it right above the Terminal --}}
         <div id="zone-utara"
-            class="absolute bottom-full mb-8 left-1/2 -translate-x-1/2 flex flex-row gap-8 items-end justify-center px-8 pt-8 pb-6 bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-2xl border border-blue-200/80 min-h-[120px] shadow-sm whitespace-nowrap">
+            class="absolute bottom-full mb-60 left-1/2 -translate-x-1/2 flex flex-row gap-8 items-end justify-center px-10 pt-10 pb-8 bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-[2.5rem] border-2 border-blue-200/80 min-h-[150px] shadow-sm whitespace-nowrap">
+            <svg id="svg-utara" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"></svg>
             <div
-                class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                Lintas Utara</div>
+                class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-30">
+                Lintas Utara
+            </div>
             @if ($utaras->count() > 0)
                 @include('components.monitor-cards', [
                     'monitors' => $utaras,
@@ -51,10 +53,12 @@
         {{-- Lintas Selatan: Standard Flow Below --}}
         {{-- mt-4 controls distance from Terminal --}}
         <div id="zone-selatan"
-            class="mt-8 flex flex-row gap-8 items-start justify-center relative px-8 pt-6 pb-8 bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-2xl border border-orange-200/80 min-h-[120px] shadow-sm">
+            class="mt-40 flex flex-row gap-8 items-start justify-center relative px-10 pt-8 pb-10 bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-[2.5rem] border-2 border-orange-200/80 min-h-[150px] shadow-sm">
+            <svg id="svg-selatan" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"></svg>
             <div
-                class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                Lintas Selatan</div>
+                class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-30">
+                Lintas Selatan
+            </div>
             @if ($selatans->count() > 0)
                 @include('components.monitor-cards', [
                     'monitors' => $selatans,
@@ -82,102 +86,106 @@
     window.addEventListener('resize', drawZoneLines);
 
     function drawZoneLines() {
-        const svg = document.getElementById('zone-lines-svg');
-        const regularZone = document.getElementById('zone-center-regular');
+        const svgMain = document.getElementById('zone-lines-svg'); 
+        if (!svgMain) return;
+        svgMain.innerHTML = ''; 
+
         const terminalZone = document.getElementById('zone-center-terminal');
         const utaraZone = document.getElementById('zone-utara');
         const selatanZone = document.getElementById('zone-selatan');
 
-        if (!svg) return;
-
-        // Clear existing lines
-        while (svg.firstChild) {
-            svg.removeChild(svg.firstChild);
-        }
-
-        function getCenter(el) {
-            if (!el) return {
-                x: 0,
-                y: 0,
-                right: 0,
-                left: 0,
-                bottom: 0,
-                top: 0
-            };
-            const rect = el.getBoundingClientRect();
-            const wrapperRect = svg.getBoundingClientRect();
-            return {
-                x: (rect.left + rect.width / 2) - wrapperRect.left,
-                y: (rect.top + rect.height / 2) - wrapperRect.top,
-                right: (rect.right) - wrapperRect.left,
-                left: (rect.left) - wrapperRect.left,
-                bottom: (rect.bottom) - wrapperRect.top,
-                top: (rect.top) - wrapperRect.top
-            };
-        }
-
-        let hubInputPoint = null;
-
-        // 1. Connect Regular Chain to Terminal -> DISABLED As per user request
-        // if (regularZone && terminalZone) { ... }
-
-        // 2. Connect Terminal to Utara and Selatan
+        // 1. HUBUNGKAN TERMINAL (KK) KE LINTAS UTARA & SELATAN
         if (terminalZone) {
-            const terminalRootNodes = terminalZone.querySelectorAll(':scope > .tree-node');
-            const terminalCard = terminalRootNodes[0]?.querySelector(':scope > .tree-node-card');
+            const termCard = terminalZone.querySelector('.monitor-card');
+            if (termCard) {
+                const termPos = getCenter(termCard, svgMain);
 
-            if (terminalCard) {
-                const termPos = getCenter(terminalCard);
-
-                // To Utara (Connect Top of Terminal to Bottom of First Utara)
                 if (utaraZone) {
-                    const utaraNodes = utaraZone.querySelectorAll(':scope > .tree-node');
-                    if (utaraNodes.length > 0) {
-                        const firstUtaraCard = utaraNodes[0].querySelector(':scope > .tree-node-card');
-                        if (firstUtaraCard) {
-                            const uPos = getCenter(firstUtaraCard);
-                            createPath(termPos.x, termPos.top, uPos.x, uPos.bottom, '#3b82f6'); // Blue
-                        }
+                    const firstUtara = utaraZone.querySelector('.monitor-card');
+                    if (firstUtara) {
+                        const uPos = getCenter(firstUtara, svgMain);
+                        // Hubungkan Atas KK ke Bawah Lintas Utara
+                        createPath(svgMain, termPos.x, termPos.top, uPos.x, uPos.bottom, '#3b82f6');
                     }
                 }
 
-                // To Selatan (Connect Bottom of Terminal to Top of First Selatan)
                 if (selatanZone) {
-                    const selatanNodes = selatanZone.querySelectorAll(':scope > .tree-node');
-                    if (selatanNodes.length > 0) {
-                        const firstSelatanCard = selatanNodes[0].querySelector(':scope > .tree-node-card');
-                        if (firstSelatanCard) {
-                            const sPos = getCenter(firstSelatanCard);
-                            createPath(termPos.x, termPos.bottom, sPos.x, sPos.top, '#f97316'); // Orange
-                        }
+                    const firstSelatan = selatanZone.querySelector('.monitor-card');
+                    if (firstSelatan) {
+                        const sPos = getCenter(firstSelatan, svgMain);
+                        // Hubungkan Bawah KK ke Atas Lintas Selatan
+                        createPath(svgMain, termPos.x, termPos.bottom, sPos.x, sPos.top, '#f97316');
                     }
                 }
             }
         }
 
-        function createPath(x1, y1, x2, y2, color) {
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            // Logic for vertical vs horizontal curves
-            // If vertically aligned (x similar), straight line or slight S
-            const isVertical = Math.abs(x1 - x2) < 50;
+        // 2. HUBUNGKAN ATASAN KE ANAKAN DI DALAM ZONA
+        const localZones = [
+            { id: 'zone-utara', svg: 'svg-utara', color: '#3b82f6', dir: 'utara' },
+            { id: 'zone-selatan', svg: 'svg-selatan', color: '#f97316', dir: 'selatan' }
+        ];
 
-            let d = '';
-            if (isVertical) {
-                const midY = (y1 + y2) / 2;
-                d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
-            } else {
-                const midX = (x1 + x2) / 2;
-                d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
-            }
+        localZones.forEach(zone => {
+            const zoneEl = document.getElementById(zone.id);
+            const svgEl = document.getElementById(zone.svg);
+            if (!zoneEl || !svgEl) return;
+            svgEl.innerHTML = ''; 
 
-            path.setAttribute('d', d);
-            path.setAttribute('stroke', color);
-            path.setAttribute('stroke-width', '4');
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke-linecap', 'round');
-            path.setAttribute('class', 'animate-pulse');
-            svg.appendChild(path);
+            const parents = zoneEl.querySelectorAll('.tree-node');
+            parents.forEach(p => {
+                const pCard = p.querySelector(':scope > .tree-node-card .monitor-card');
+                const cContainer = p.querySelector(':scope > .tree-children');
+
+                if (pCard && cContainer && !cContainer.classList.contains('hidden')) {
+                    const childCards = cContainer.querySelectorAll(':scope > .tree-node > .tree-node-card .monitor-card');
+                    childCards.forEach(cCard => {
+                        const pPos = getCenter(pCard, svgEl);
+                        const cPos = getCenter(cCard, svgEl);
+
+                        if (zone.dir === 'utara') {
+                            // Utara: Dari Atas Parent ke Bawah Child (karena alur ke atas)
+                            createPath(svgEl, pPos.x, pPos.top, cPos.x, cPos.bottom, zone.color, true);
+                        } else {
+                            // Selatan: Dari Bawah Parent ke Atas Child
+                            createPath(svgEl, pPos.x, pPos.bottom, cPos.x, cPos.top, zone.color, true);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    // FUNGSI KUNCI: Membuat garis lengkung SVG
+    function createPath(svg, x1, y1, x2, y2, color, isDashed = false) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const midY = (y1 + y2) / 2;
+        
+        // Membuat kurva S yang halus
+        const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+        
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '4');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        
+        if (isDashed) {
+            path.setAttribute('stroke-dasharray', '8,8'); // Efek putus-putus untuk anakan
         }
+        
+        svg.appendChild(path);
+    }
+
+    function getCenter(el, svg) {
+        const rect = el.getBoundingClientRect();
+        const svgRect = svg.getBoundingClientRect();
+        return {
+            x: (rect.left + rect.width / 2) - svgRect.left,
+            y: (rect.top + rect.height / 2) - svgRect.top,
+            top: rect.top - svgRect.top,
+            bottom: rect.bottom - svgRect.top
+        };
     }
 
     window.drawZoneLines = drawZoneLines;

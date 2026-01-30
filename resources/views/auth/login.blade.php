@@ -21,14 +21,14 @@
         @csrf
 
         <div>
-            <input id="email" 
+            <input id="username" 
                    autocomplete="off"
                    class="w-full rounded-md text-sm py-2 px-3 bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500
-                   {{ $errors->has('email') ? 'border-2 border-orange-500' : 'border-gray-300' }}" 
-                   type="email" name="email" value="{{ old('email') }}" 
-                   placeholder="Email" required autofocus />
-            @error('email')
-                <p class="text-[9px] text-orange-600 mt-1 font-semibold text-left">* Email belum lengkap atau salah isinya.</p>
+                   {{ $errors->has('username') ? 'border-2 border-orange-500' : 'border-gray-300' }}" 
+                   type="text" name="username" value="{{ old('username') }}" 
+                   placeholder="Username" required autofocus />
+            @error('username')
+                <p class="text-[9px] text-orange-600 mt-1 font-semibold text-left">*Username belum lengkap atau salah isinya.</p>
             @enderror
         </div>
 
@@ -45,10 +45,10 @@
                     @click="show = !show" 
                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-orange-500">
                 <template x-if="!show">
-                    <i class="fa-solid fa-eye h-4 w-4"></i>
+                    <i class="fa-solid fa-eye-slash h-4 w-4"></i>
                 </template>
                 <template x-if="show">
-                    <i class="fa-solid fa-eye-slash h-4 w-4"></i>
+                    <i class="fa-solid fa-eye h-4 w-4"></i>
                 </template>
             </button>
             @error('password')

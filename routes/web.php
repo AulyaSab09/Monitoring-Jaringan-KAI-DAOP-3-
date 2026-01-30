@@ -38,5 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/history/reset', [HistoryController::class, 'reset'])->name('history.reset');
 });
 
+Route::get('/profile', function() {
+        return view('profile');
+});
+
 require __DIR__.'/auth.php';
 
