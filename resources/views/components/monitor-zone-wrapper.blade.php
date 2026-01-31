@@ -19,12 +19,12 @@
 
     {{-- COL 2: HUB (Terminal) --}}
     {{-- Relative container for aligning Hub parts --}}
-    <div id="hub-column" class="relative flex flex-col items-center z-10">
+    <div id="hub-column" class="relative flex flex-col items-start z-10">
 
         {{-- Lintas Utara: Absolute Top, growing Up --}}
         {{-- bottom-full moves it right above the Terminal --}}
         <div id="zone-utara"
-            class="absolute bottom-full mb-60 left-1/2 -translate-x-1/2 flex flex-row gap-8 items-end justify-center px-10 pt-10 pb-8 bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-[2.5rem] border-2 border-blue-200/80 min-h-[150px] shadow-sm whitespace-nowrap">
+            class="absolute bottom-full mb-60 left-0 flex flex-row gap-8 items-end justify-start px-10 pt-10 pb-8 bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-[2.5rem] border-2 border-blue-200/80 min-h-[150px] shadow-sm whitespace-nowrap">
             <svg id="svg-utara" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"></svg>
             <div
                 class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-30">
@@ -53,7 +53,7 @@
         {{-- Lintas Selatan: Standard Flow Below --}}
         {{-- mt-4 controls distance from Terminal --}}
         <div id="zone-selatan"
-            class="mt-40 flex flex-row gap-8 items-start justify-center relative px-10 pt-8 pb-10 bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-[2.5rem] border-2 border-orange-200/80 min-h-[150px] shadow-sm">
+            class="mt-40 flex flex-row gap-8 items-start justify-start relative px-10 pt-8 pb-10 bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-[2.5rem] border-2 border-orange-200/80 min-h-[150px] shadow-sm">
             <svg id="svg-selatan" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"></svg>
             <div
                 class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-30">
@@ -81,9 +81,22 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // Use ResizeObserver for more robust detection of container size changes (like zoom)
+        const observer = new ResizeObserver(() => {
+            requestAnimationFrame(() => drawZoneLines());
+        });
+
+        const container = document.querySelector('.relative.w-full.min-h-full');
+        if (container) observer.observe(container);
+
+        // Also listen to window resize as fallback
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(() => drawZoneLines());
+        });
+
+        // Initial draw
         drawZoneLines();
     });
-    window.addEventListener('resize', drawZoneLines);
 
     function drawZoneLines() {
         const svgMain = document.getElementById('zone-lines-svg');
@@ -120,52 +133,9 @@
             }
         }
 
-        // 2. HUBUNGKAN ATASAN KE ANAKAN DI DALAM ZONA
-        const localZones = [{
-                id: 'zone-utara',
-                svg: 'svg-utara',
-                color: '#3b82f6',
-                dir: 'utara'
-            },
-            {
-                id: 'zone-selatan',
-                svg: 'svg-selatan',
-                color: '#f97316',
-                dir: 'selatan'
-            }
-        ];
-
-        localZones.forEach(zone => {
-            const zoneEl = document.getElementById(zone.id);
-            const svgEl = document.getElementById(zone.svg);
-            if (!zoneEl || !svgEl) return;
-            svgEl.innerHTML = '';
-
-            const parents = zoneEl.querySelectorAll('.tree-node');
-            parents.forEach(p => {
-                const pCard = p.querySelector(':scope > .tree-node-card .monitor-card');
-                const cContainer = p.querySelector(':scope > .tree-children');
-
-                if (pCard && cContainer && !cContainer.classList.contains('hidden')) {
-                    const childCards = cContainer.querySelectorAll(
-                        ':scope > .tree-node > .tree-node-card .monitor-card');
-                    childCards.forEach(cCard => {
-                        const pPos = getCenter(pCard, svgEl);
-                        const cPos = getCenter(cCard, svgEl);
-
-                        if (zone.dir === 'utara') {
-                            // Utara: Dari Atas Parent ke Bawah Child (karena alur ke atas)
-                            createPath(svgEl, pPos.x, pPos.top, cPos.x, cPos.bottom, zone.color,
-                                true);
-                        } else {
-                            // Selatan: Dari Bawah Parent ke Atas Child
-                            createPath(svgEl, pPos.x, pPos.bottom, cPos.x, cPos.top, zone.color,
-                                true);
-                        }
-                    });
-                }
-            });
-        });
+        // 2. (REMOVED) HUBUNGKAN ATASAN KE ANAKAN DI DALAM ZONA
+        // Logic ini sekarang ditangani sepenuhnya oleh monitor-dashboard.js (drawTreeLines)
+        // agar gaya garis konsisten (lurus/siku) dan tidak double-drawing.
     }
 
     // FUNGSI KUNCI: Membuat garis lengkung SVG
@@ -192,11 +162,15 @@
     function getCenter(el, svg) {
         const rect = el.getBoundingClientRect();
         const svgRect = svg.getBoundingClientRect();
+
+        // Get Zoom Factor (default to 1 if not available)
+        const zoom = (typeof window.getCurrentZoom === 'function') ? window.getCurrentZoom() : 1;
+
         return {
-            x: (rect.left + rect.width / 2) - svgRect.left,
-            y: (rect.top + rect.height / 2) - svgRect.top,
-            top: rect.top - svgRect.top,
-            bottom: rect.bottom - svgRect.top
+            x: ((rect.left + rect.width / 2) - svgRect.left) / zoom,
+            y: ((rect.top + rect.height / 2) - svgRect.top) / zoom,
+            top: (rect.top - svgRect.top) / zoom,
+            bottom: (rect.bottom - svgRect.top) / zoom
         };
     }
 

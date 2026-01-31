@@ -153,7 +153,12 @@ function toggleBranch(id) {
             childContainer.style.display = 'none';
             arrow.style.transform = 'rotate(-90deg)';
         }
-        setTimeout(drawTreeLines, 50);
+        setTimeout(() => {
+            drawTreeLines();
+            if (typeof window.drawZoneLines === 'function') {
+                window.drawZoneLines();
+            }
+        }, 50);
     }
 }
 
@@ -177,11 +182,20 @@ const viewport = document.getElementById('tree-viewport');
 const container = document.getElementById('tree-container');
 const zoomInput = document.getElementById('zoom-input');
 
+// Expose Zoom for other scripts
+window.getCurrentZoom = () => currentZoom;
+
 function updateTransform() {
     viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
     if (zoomInput) zoomInput.value = Math.round(currentZoom * 100);
-    if (zoomLabel) zoomLabel.innerText = Math.round(currentZoom * 100) + '%';
-    if (!isDragging) requestAnimationFrame(drawTreeLines);
+    // if (zoomLabel) zoomLabel.innerText = Math.round(currentZoom * 100) + '%'; 
+    if (!isDragging) {
+        requestAnimationFrame(drawTreeLines);
+        // Also update Zone Lines (Cross-connections)
+        if (typeof window.drawZoneLines === 'function') {
+            requestAnimationFrame(window.drawZoneLines);
+        }
+    }
 }
 
 // Function to set zoom manually from input
@@ -218,9 +232,29 @@ window.zoomOut = () => { currentZoom -= 0.2; updateTransform(); };
 window.setZoom = setZoom;
 window.resetZoom = () => {
     const deviceCount = document.querySelectorAll('.monitor-card').length;
-    currentZoom = deviceCount > 20 ? 0.1 : 0.3; // 10% jika > 20 devices, 30% default
-    panX = 0;
-    panY = 0;
+    currentZoom = deviceCount > 20 ? 0.3 : 0.6; // Scale down if many devices, else comfortable size
+
+    // Calculate Center Position
+    const container = document.getElementById('tree-container');
+    const wrapper = document.getElementById('tree-wrapper');
+
+    if (container && wrapper) {
+        const cRect = container.getBoundingClientRect();
+        // Use scrollWidth/Height to get full content size
+        const wWidth = wrapper.scrollWidth;
+        const wHeight = wrapper.scrollHeight;
+
+        // Center Formula: (ContainerSize - (ContentSize * Zoom)) / 2
+        panX = (cRect.width - (wWidth * currentZoom)) / 2;
+        panY = (cRect.height - (wHeight * currentZoom)) / 2;
+
+        // Optional: clamped to ensure top-left visibility if content is huge? 
+        // User asked for "Center", so we center strictly.
+    } else {
+        panX = 0;
+        panY = 0;
+    }
+
     updateTransform();
 };
 window.enableSound = enableSound;

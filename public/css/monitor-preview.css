@@ -152,7 +152,8 @@ body {
 }
 
 /* 2. TERMINAL CENTER (The Hub) */
-#zone-center-terminal>.tree-node {
+/* 2. TERMINAL CENTER (The Hub) - RECURSIVE */
+#zone-center-terminal .tree-node {
     flex-direction: row;
     /* Horizontal layout: Card Left, Children Right */
     align-items: center;
@@ -162,13 +163,13 @@ body {
     /* Anchor for absolute children */
 }
 
-#zone-center-terminal>.tree-node>.tree-node-card {
+#zone-center-terminal .tree-node>.tree-node-card {
     margin-bottom: 0;
     margin-right: 0;
 }
 
 /* Children container extends to the RIGHT, but children themselves stack Vertically */
-#zone-center-terminal>.tree-node>.tree-children {
+#zone-center-terminal .tree-node>.tree-children {
     flex-direction: column;
     /* Stack children vertically */
     gap: 2rem;
