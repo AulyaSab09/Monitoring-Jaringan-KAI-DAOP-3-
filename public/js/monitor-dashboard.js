@@ -425,8 +425,8 @@ function refreshData() {
                     // ============================================================
 
                     // Update Router LEDs (Kita copy satu blok div router-leds)
-                    const oldRouterLeds = oldCard.querySelector('.router-leds');
-                    const newRouterLeds = newCard.querySelector('.router-leds');
+                    const oldRouterLeds = oldCard.querySelector('.device-leds');
+                    const newRouterLeds = newCard.querySelector('.device-leds');
                     if (oldRouterLeds && newRouterLeds) {
                         oldRouterLeds.innerHTML = newRouterLeds.innerHTML;
                     }
