@@ -216,7 +216,13 @@ container.addEventListener('wheel', e => { e.preventDefault(); currentZoom += e.
 window.zoomIn = () => { currentZoom += 0.2; updateTransform(); };
 window.zoomOut = () => { currentZoom -= 0.2; updateTransform(); };
 window.setZoom = setZoom;
-window.resetZoom = () => { currentZoom = 1; panX = 0; panY = 0; updateTransform(); };
+window.resetZoom = () => {
+    const deviceCount = document.querySelectorAll('.monitor-card').length;
+    currentZoom = deviceCount > 20 ? 0.1 : 0.3; // 10% jika > 20 devices, 30% default
+    panX = 0;
+    panY = 0;
+    updateTransform();
+};
 window.enableSound = enableSound;
 window.toggleBranch = toggleBranch;
 

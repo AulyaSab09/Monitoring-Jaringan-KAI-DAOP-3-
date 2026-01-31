@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -36,6 +37,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
     Route::get('/history/data', [HistoryController::class, 'getTableData'])->name('history.data');
     Route::delete('/history/reset', [HistoryController::class, 'reset'])->name('history.reset');
+
+    // SETTINGS
+    Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings');
+    Route::post('/admin/settings/update', [SettingController::class, 'update'])->name('admin.settings.update');
 });
 
 Route::get('/profile', function() {

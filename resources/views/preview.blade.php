@@ -1,9 +1,14 @@
+@php
+    $appTitle = \App\Models\AppSetting::get('app_title', 'Sistem Monitoring Jaringan');
+    $soundConnect = \App\Models\AppSetting::get('sound_connect');
+    $soundDisconnect = \App\Models\AppSetting::get('sound_disconnect');
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Sistem Monitoring Jaringan - KAI DAOP 3 Cirebon</title>
+        <title>{{ $appTitle }} - KAI DAOP 3 Cirebon</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />        
         <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +31,7 @@
                     <div class="flex items-center gap-4">
                         <img src="{{ asset('assets/images/kai_logo.png') }}" alt="KAI" class="h-24 w-auto" />
                         <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Sistem Monitoring Jaringan</h1>
+                            <h1 class="text-2xl font-bold text-gray-900">{{ $appTitle }}</h1>
                             <p class="text-sm text-gray-500">KAI DAOP 3 Cirebon</p>
                         </div>
                     </div>
@@ -78,10 +83,10 @@
                             </button>
 
                             <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50 overflow-hidden">
-                                {{-- <a href="{{ route('profile') }}" class="flex items-center px-4 py-2 text-lg text-gray-700 hover:bg-[#001D4B] hover:text-white transition">
-                                    <i class="fa-solid fa-id-card-vertical w-4 h-4 mr-3"></i>
-                                    Profile
-                                </a> --}}
+                                <a href="{{ route('admin.settings') }}" class="flex items-center px-4 py-2 text-lg text-gray-700 hover:bg-[#001D4B] hover:text-white transition">
+                                    <i class="fa-solid fa-gear w-4 h-4 mr-3"></i>
+                                    Pengaturan
+                                </a>
                                 <hr class="my-1 border-gray-100">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -130,8 +135,8 @@
         
         @include('components.monitor-hover-tooltip')
 
-        <audio id="sound-connect" src="{{ asset('assets/notifications/konek.mp3') }}" preload="auto"></audio>
-        <audio id="sound-disconnect" src="{{ asset('assets/notifications/diskonek.mp3') }}" preload="auto"></audio>
+        <audio id="sound-connect" src="{{ $soundConnect ? asset('storage/' . $soundConnect) : asset('assets/notifications/konek.mp3') }}" preload="auto"></audio>
+        <audio id="sound-disconnect" src="{{ $soundDisconnect ? asset('storage/' . $soundDisconnect) : asset('assets/notifications/diskonek.mp3') }}" preload="auto"></audio>
         
         <button id="sound-toggle" onclick="enableSound()" class="fixed bottom-4 right-4 z-50 px-4 py-2 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-700 transition-all flex items-center gap-2 text-sm font-semibold">
             <span id="sound-label">🔇 Suara On</span>
