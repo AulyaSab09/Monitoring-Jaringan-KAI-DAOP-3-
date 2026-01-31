@@ -70,7 +70,7 @@
 
     {{-- For Lintas Utara: flex-col-reverse makes children appear ABOVE parent --}}
     {{-- For Center Terminal: flex-row makes children appear RIGHT of parent --}}
-    <div class="tree-node {{ $zone == 'lintas utara' ? 'flex-col-reverse' : ($zone == 'center-terminal' ? 'flex-row items-center gap-16' : '') }}" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
+    <div class="tree-node {{ $zone == 'lintas utara' ? 'flex-col-reverse' : ($zone == 'center-terminal' ? 'flex-row items-center gap-0' : '') }}" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
         <div class="tree-node-card group relative">
             {{-- FLOATING IDENTITY LABEL --}}    
             @if($type == 'router' || $type == 'switch')   
@@ -206,11 +206,18 @@
 
                 @if($hasChildren)
                     @if($zone == 'center-terminal')
-                        <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -right-10 top-1/2 transform -translate-y-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30">
+                        <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -right-6 top-1/2 transform -translate-y-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30">
                             <i id="arrow-{{ $monitor->id }}" class="fa-solid fa-chevron-right w-5 h-5 transition-transform"></i>
                         </button>
                         <div id="badge-hidden-{{ $monitor->id }}" class="hidden absolute -right-20 top-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">! CEK</div>
+                    @elseif($zone == 'lintas utara')
+                        {{-- UTARA: Button at TOP --}}
+                        <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30">
+                            <i id="arrow-{{ $monitor->id }}" class="fa-solid fa-chevron-up w-5 h-5 transition-transform"></i>
+                        </button>
+                        <div id="badge-hidden-{{ $monitor->id }}" class="hidden absolute -top-18 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">! CEK</div>
                     @else
+                        {{-- STANDARD (Selatan/Center Regular): Button at BOTTOM --}}
                         <button onclick="toggleBranch({{ $monitor->id }})" class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center shadow-md z-30">
                             <i id="arrow-{{ $monitor->id }}" class="fa-solid fa-chevron-down w-5 h-5 transition-transform"></i>
                         </button>

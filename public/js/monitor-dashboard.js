@@ -236,13 +236,16 @@ function drawTreeLines() {
     svg.innerHTML = '';
 
     const getPos = (el) => {
-        let x = 0, y = 0, w = el.offsetWidth, h = el.offsetHeight;
-        let curr = el;
-        while (curr && curr !== viewport) {
-            x += curr.offsetLeft;
-            y += curr.offsetTop;
-            curr = curr.offsetParent;
-        }
+        const vpRect = viewport.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+
+        // Calculate relative position unscaled (undoing the zoom factor)
+        // This makes it compatible with CSS transforms (translate) and absolute positioning
+        const x = (elRect.left - vpRect.left) / currentZoom;
+        const y = (elRect.top - vpRect.top) / currentZoom;
+        const w = elRect.width / currentZoom;
+        const h = elRect.height / currentZoom;
+
         return { x, y, w, h, cx: x + w / 2, cy: y + h / 2 };
     };
 
@@ -273,7 +276,7 @@ function drawTreeLines() {
                 if (direction === 'down') {
                     // STANDARD: Parent Top -> Children Below (Horizontal Spread)
                     const midY = pPos.y + pPos.h + 20; // 20px below parent
-                    let minX = Infinity, maxX = -Infinity;
+                    let minX = pPos.cx, maxX = pPos.cx; // Include Parent Center!
 
                     cPositions.forEach(item => {
                         const cPos = item.pos;
@@ -292,7 +295,7 @@ function drawTreeLines() {
                 } else if (direction === 'up') {
                     // UTARA: Parent Bottom -> Children Above
                     const midY = pPos.y - 20; // 20px above parent
-                    let minX = Infinity, maxX = -Infinity;
+                    let minX = pPos.cx, maxX = pPos.cx; // Include Parent Center!
 
                     cPositions.forEach(item => {
                         const cPos = item.pos;
@@ -309,11 +312,10 @@ function drawTreeLines() {
                     if (minX !== Infinity) createPath(`M ${minX} ${midY} L ${maxX} ${midY}`, 'pending');
 
                 } else if (direction === 'right') {
-                    // TERMINAL: Parent Left -> Children Right (Vertical layout of children to the right)
-                    // Logic: Parent Right -> MidX -> Vertical Bar -> Child Left
-
-                    const midX = pPos.x + pPos.w + 30; // 30px right of parent
-                    let minY = Infinity, maxY = -Infinity;
+                    // TERMINAL: Parent Left -> Children Right
+                    // Increased spacing for better visibility with toggle button
+                    const midX = pPos.x + pPos.w + 50; // 50px right of parent (was 30)
+                    let minY = pPos.cy, maxY = pPos.cy; // Include Parent Center!
 
                     cPositions.forEach(item => {
                         const cPos = item.pos;

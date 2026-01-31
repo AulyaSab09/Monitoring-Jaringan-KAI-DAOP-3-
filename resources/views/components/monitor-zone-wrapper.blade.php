@@ -86,9 +86,9 @@
     window.addEventListener('resize', drawZoneLines);
 
     function drawZoneLines() {
-        const svgMain = document.getElementById('zone-lines-svg'); 
+        const svgMain = document.getElementById('zone-lines-svg');
         if (!svgMain) return;
-        svgMain.innerHTML = ''; 
+        svgMain.innerHTML = '';
 
         const terminalZone = document.getElementById('zone-center-terminal');
         const utaraZone = document.getElementById('zone-utara');
@@ -121,16 +121,25 @@
         }
 
         // 2. HUBUNGKAN ATASAN KE ANAKAN DI DALAM ZONA
-        const localZones = [
-            { id: 'zone-utara', svg: 'svg-utara', color: '#3b82f6', dir: 'utara' },
-            { id: 'zone-selatan', svg: 'svg-selatan', color: '#f97316', dir: 'selatan' }
+        const localZones = [{
+                id: 'zone-utara',
+                svg: 'svg-utara',
+                color: '#3b82f6',
+                dir: 'utara'
+            },
+            {
+                id: 'zone-selatan',
+                svg: 'svg-selatan',
+                color: '#f97316',
+                dir: 'selatan'
+            }
         ];
 
         localZones.forEach(zone => {
             const zoneEl = document.getElementById(zone.id);
             const svgEl = document.getElementById(zone.svg);
             if (!zoneEl || !svgEl) return;
-            svgEl.innerHTML = ''; 
+            svgEl.innerHTML = '';
 
             const parents = zoneEl.querySelectorAll('.tree-node');
             parents.forEach(p => {
@@ -138,17 +147,20 @@
                 const cContainer = p.querySelector(':scope > .tree-children');
 
                 if (pCard && cContainer && !cContainer.classList.contains('hidden')) {
-                    const childCards = cContainer.querySelectorAll(':scope > .tree-node > .tree-node-card .monitor-card');
+                    const childCards = cContainer.querySelectorAll(
+                        ':scope > .tree-node > .tree-node-card .monitor-card');
                     childCards.forEach(cCard => {
                         const pPos = getCenter(pCard, svgEl);
                         const cPos = getCenter(cCard, svgEl);
 
                         if (zone.dir === 'utara') {
                             // Utara: Dari Atas Parent ke Bawah Child (karena alur ke atas)
-                            createPath(svgEl, pPos.x, pPos.top, cPos.x, cPos.bottom, zone.color, true);
+                            createPath(svgEl, pPos.x, pPos.top, cPos.x, cPos.bottom, zone.color,
+                                true);
                         } else {
                             // Selatan: Dari Bawah Parent ke Atas Child
-                            createPath(svgEl, pPos.x, pPos.bottom, cPos.x, cPos.top, zone.color, true);
+                            createPath(svgEl, pPos.x, pPos.bottom, cPos.x, cPos.top, zone.color,
+                                true);
                         }
                     });
                 }
@@ -160,20 +172,20 @@
     function createPath(svg, x1, y1, x2, y2, color, isDashed = false) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const midY = (y1 + y2) / 2;
-        
+
         // Membuat kurva S yang halus
         const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
-        
+
         path.setAttribute('d', d);
         path.setAttribute('stroke', color);
         path.setAttribute('stroke-width', '4');
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke-linecap', 'round');
-        
+
         if (isDashed) {
             path.setAttribute('stroke-dasharray', '8,8'); // Efek putus-putus untuk anakan
         }
-        
+
         svg.appendChild(path);
     }
 
