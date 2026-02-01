@@ -24,7 +24,7 @@
         {{-- Lintas Utara: Absolute Top, growing Up --}}
         {{-- bottom-full moves it right above the Terminal --}}
         <div id="zone-utara"
-            class="absolute bottom-full mb-60 left-0 flex flex-row gap-8 items-end justify-start px-10 pt-10 pb-8 bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-[2.5rem] border-2 border-blue-200/80 min-h-[150px] shadow-sm whitespace-nowrap">
+            class="absolute bottom-full mb-60 left-0 flex flex-row gap-8 items-end justify-start px-10 pt-10 pb-8 min-h-[150px] whitespace-nowrap">
             <svg id="svg-utara" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"></svg>
             <div
                 class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-30">
@@ -53,7 +53,7 @@
         {{-- Lintas Selatan: Standard Flow Below --}}
         {{-- mt-4 controls distance from Terminal --}}
         <div id="zone-selatan"
-            class="mt-40 flex flex-row gap-8 items-start justify-start relative px-10 pt-8 pb-10 bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-[2.5rem] border-2 border-orange-200/80 min-h-[150px] shadow-sm">
+            class="mt-40 flex flex-row gap-8 items-start justify-start relative px-10 pt-8 pb-10 min-h-[150px]">
             <svg id="svg-selatan" class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"></svg>
             <div
                 class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg z-30">
@@ -118,7 +118,7 @@
                     if (firstUtara) {
                         const uPos = getCenter(firstUtara, svgMain);
                         // Hubungkan Atas KK ke Bawah Lintas Utara
-                        createPath(svgMain, termPos.x, termPos.top, uPos.x, uPos.bottom, '#3b82f6');
+                        createPath(svgMain, termPos.x, termPos.top, uPos.x, uPos.bottom, '#cbd5e1');
                     }
                 }
 
@@ -127,7 +127,7 @@
                     if (firstSelatan) {
                         const sPos = getCenter(firstSelatan, svgMain);
                         // Hubungkan Bawah KK ke Atas Lintas Selatan
-                        createPath(svgMain, termPos.x, termPos.bottom, sPos.x, sPos.top, '#f97316');
+                        createPath(svgMain, termPos.x, termPos.bottom, sPos.x, sPos.top, '#cbd5e1');
                     }
                 }
             }

@@ -73,7 +73,7 @@
     <div class="tree-node {{ $zone == 'lintas utara' ? 'flex-col-reverse' : ($zone == 'center-terminal' ? 'flex-row items-center gap-0' : '') }}" id="node-{{ $monitor->id }}" data-node-id="{{ $monitor->id }}">
         <div class="tree-node-card group relative">
             {{-- FLOATING IDENTITY LABEL --}}    
-            @if($type == 'router' || $type == 'switch')   
+            @if($type == 'router')   
             {{-- For Lintas Utara: floating label at BOTTOM, else at TOP --}}
             <div class="floating-identity {{ $zone == 'lintas utara' ? 'floating-identity-bottom' : ($zone == 'lintas selatan' ? 'floating-identity-selatan' : 'floating-identity-top') }}">
                 {{ $monitor->kode_lokasi ?? $loc }}

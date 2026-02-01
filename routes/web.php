@@ -39,13 +39,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/history/reset', [HistoryController::class, 'reset'])->name('history.reset');
 
     // SETTINGS
-    Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings');
+    // Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings'); // Moved to profile
     Route::post('/admin/settings/update', [SettingController::class, 'update'])->name('admin.settings.update');
 });
 
-Route::get('/profile', function() {
-        return view('profile');
-});
+
 
 require __DIR__.'/auth.php';
 

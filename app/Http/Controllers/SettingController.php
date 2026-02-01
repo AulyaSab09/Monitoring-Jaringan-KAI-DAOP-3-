@@ -62,6 +62,6 @@ class SettingController extends Controller
             AppSetting::set('sound_disconnect', $path);
         }
 
-        return redirect()->route('admin.settings')->with('success', 'Pengaturan berhasil disimpan!');
+        return redirect()->route('profile.edit')->with('success', 'Pengaturan berhasil disimpan!');
     }
 }

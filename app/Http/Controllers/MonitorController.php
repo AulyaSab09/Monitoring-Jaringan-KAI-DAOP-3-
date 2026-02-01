@@ -90,7 +90,11 @@ class MonitorController extends Controller
             $rules['zone'] = 'required|in:center,lintas utara,lintas selatan';
         }
 
-        $request->validate($rules);
+        $messages = [
+            'ip_address.unique' => 'Sudah ada ip perangkat itu, harap ganti.',
+        ];
+
+        $request->validate($rules, $messages);
 
         // VALIDASI LOGIKA BISNIS (only for root devices):
         if (!$isChildDevice && $request->zone !== 'center') {

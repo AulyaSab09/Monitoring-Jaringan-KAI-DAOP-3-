@@ -14,12 +14,15 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Pakai updateOrCreate agar kalau dijalankan berkali-kali tidak error "Duplicate Entry"
+
+        // 2. Baru jalankan updateOrCreate dengan key username
         User::updateOrCreate(
-            ['email' => 'kai@admin.ac.id'], // Cek berdasarkan email
+            ['username' => 'admin_kai'], 
             [
                 'name' => 'Admin KAI DAOP 3',
-                'password' => Hash::make('123'), // Password di-hash
-                'email_verified_at' => now(), // Otomatis verified biar langsung bisa login
+                'password' => Hash::make('123'), 
+                // 'email' => 'kai@admin.ac.id', // Removed column
+                'email_verified_at' => now(), 
             ]
         );
     }

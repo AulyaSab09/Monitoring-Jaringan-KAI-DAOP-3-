@@ -68,6 +68,11 @@
             
             {{-- Header Form diperbesar --}}
             <div class="mb-12">
+                {{-- Alert Error IP Address --}}
+                @if($errors->has('ip_address'))
+                    @include('layouts.alert.notification', ['type' => 'error', 'message' => $errors->first('ip_address')])
+                @endif
+                
                 <h2 class="text-5xl font-black text-kai-navy uppercase">Detail Perangkat</h2>
                 {{-- INDIKATOR PARENT (LOGIKA BARU) --}}
                 @if(request('parent_id'))

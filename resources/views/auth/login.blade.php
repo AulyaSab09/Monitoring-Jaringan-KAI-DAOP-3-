@@ -4,7 +4,7 @@
     </div>
 
     <div class="text-center mb-6">
-        <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tighter leading-tight">Sistem Monitoring Jaringan</h2>
+        <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tighter leading-tight">{{ $appTitle }}</h2>
         <div class="flex flex-col text-[10px] text-gray-500 leading-normal mt-1">
             <span>Silakan login untuk mengakses dashboard monitoring</span>
             <span>KAI DAOP 3 Cirebon.</span>
@@ -21,29 +21,25 @@
         @csrf
 
         <div>
-            <input id="username" 
-                   autocomplete="off"
-                   class="w-full rounded-md text-sm py-2 px-3 bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500
-                   {{ $errors->has('username') ? 'border-2 border-orange-500' : 'border-gray-300' }}" 
-                   type="text" name="username" value="{{ old('username') }}" 
-                   placeholder="Username" required autofocus />
+            <input id="username" autocomplete="off"
+                class="w-full rounded-md text-sm py-2 px-3 bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500
+                   {{ $errors->has('username') ? 'border-2 border-orange-500' : 'border-gray-300' }}"
+                type="text" name="username" value="{{ old('username') }}" placeholder="Username" required
+                autofocus />
             @error('username')
-                <p class="text-[9px] text-orange-600 mt-1 font-semibold text-left">*Username belum lengkap atau salah isinya.</p>
+                <p class="text-[9px] text-orange-600 mt-1 font-semibold text-left">*Username belum lengkap atau salah
+                    isinya.</p>
             @enderror
         </div>
 
         <div x-data="{ show: false }" class="relative">
-            <input :type="show ? 'text' : 'password'" 
-                   id="password" 
-                   name="password"
-                   autocomplete="new-password"
-                   class="w-full rounded-md text-sm py-2 px-3 bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500
-                   {{ $errors->has('password') ? 'border-2 border-orange-500' : 'border-gray-300' }}" 
-                   placeholder="Password" required />
-            
-            <button type="button" 
-                    @click="show = !show" 
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-orange-500">
+            <input :type="show ? 'text' : 'password'" id="password" name="password" autocomplete="new-password"
+                class="w-full rounded-md text-sm py-2 px-3 bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500
+                   {{ $errors->has('password') ? 'border-2 border-orange-500' : 'border-gray-300' }}"
+                placeholder="Password" required />
+
+            <button type="button" @click="show = !show"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-orange-500">
                 <template x-if="!show">
                     <i class="fa-solid fa-eye-slash h-4 w-4"></i>
                 </template>
@@ -57,7 +53,8 @@
         </div>
 
         <div class="pt-2">
-            <button type="submit" class="w-full bg-[#28a745] hover:bg-[#218838] text-white font-bold py-2 rounded transition shadow-md uppercase text-sm tracking-wider">
+            <button type="submit"
+                class="w-full bg-[#28a745] hover:bg-[#218838] text-white font-bold py-2 rounded transition shadow-md uppercase text-sm tracking-wider">
                 Log In
             </button>
         </div>

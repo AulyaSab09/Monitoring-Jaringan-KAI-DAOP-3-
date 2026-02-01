@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppSetting;
+
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,8 +18,15 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
+        $settings = [
+            'app_title' => AppSetting::get('app_title', 'Sistem Monitoring Jaringan'),
+            'sound_connect' => AppSetting::get('sound_connect'),
+            'sound_disconnect' => AppSetting::get('sound_disconnect'),
+        ];
+
+        return view('profile', [
             'user' => $request->user(),
+            'settings' => $settings,
         ]);
     }
 
@@ -26,7 +35,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        }
+
+        $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
