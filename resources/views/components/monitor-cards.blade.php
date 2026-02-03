@@ -159,7 +159,7 @@
                             {{ $s['label'] }}
                         </span>
                         <div class="ml-auto">
-                            <span class="location-badge">{{ $loc }}</span>
+                            <span class="location-badge">{{ $monitor->kode_lokasi }}</span>
                         </div>
                     </div>
 

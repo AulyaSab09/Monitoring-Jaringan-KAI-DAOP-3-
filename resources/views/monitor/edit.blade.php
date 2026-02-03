@@ -173,7 +173,7 @@
                     <button type="submit" class="w-full md:w-auto bg-kai-navy hover:bg-blue-900 text-white font-black px-16 py-6 rounded-2xl shadow-2xl shadow-blue-200 transition-all uppercase tracking-widest text-lg flex items-center justify-center gap-4">
                        Update Device
                     </button>
-                    <a href="{{ route('monitor.index') }}" class="text-sm font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-[0.3em]">
+                    <a href="{{ route('monitor.index') }}" class="text-lg font-bold text-red-200 hover:text-red-600 transition-colors uppercase tracking-[0.3em]">
                         Batalkan
                     </a>
                 </div>

@@ -33,40 +33,40 @@
         <div class="max-w-[98%] mx-auto px-4">
 
             {{-- 1. HEADER SECTION --}}
-            <header class="mb-4 flex justify-between items-center">
-                <div class="flex items-center gap-6">
+            <header class="mb-4 flex flex-col xl:flex-row justify-between items-center gap-6 xl:gap-0">
+                <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
                     {{-- Logo KAI Sesuai Preview --}}
                     <img src="{{ asset('assets/images/kai_logo.png') }}" alt="KAI"
-                        class="h-24 w-auto object-contain" />
+                        class="h-16 md:h-24 w-auto object-contain" />
                     <div>
-                        <h1 class="text-3xl font-black text-gray-900 tracking-tight text-kai-navy">Riwayat Insiden
+                        <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight text-kai-navy">Riwayat Insiden
                             Perangkat Jaringan</h1>
-                        <p class="text-base text-gray-500 font-bold uppercase tracking-widest">KAI DAOP 3 Cirebon</p>
+                        <p class="text-sm md:text-base text-gray-500 font-bold uppercase tracking-widest">KAI DAOP 3 Cirebon</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
                     {{-- Link diarahkan ke route preview --}}
                     <a href="{{ route('preview') }}"
-                        class="flex items-center gap-3 px-8 py-3.5 bg-kai-navy text-white rounded-2xl hover:opacity-90 transition-all font-black text-sm shadow-xl shadow-blue-900/20 tracking-widest">
+                        class="w-full sm:w-auto flex justify-center items-center gap-3 px-6 md:px-8 py-3.5 bg-kai-navy text-white rounded-2xl hover:opacity-90 transition-all font-black text-sm shadow-xl shadow-blue-900/20 tracking-widest">
                         <i class="fa-solid fa-gauge-high text-lg"></i>
                         DASHBOARD
                     </a>
 
                     {{-- Container Dropdown Reset --}}
-                    <div class="relative inline-block text-left" x-data="{ open: false }">
+                    <div class="relative w-full sm:w-auto inline-block text-left" x-data="{ open: false }">
                         {{-- Tombol Utama --}}
-                        <div class="flex items-center gap-3">
+                        <div class="flex flex-col sm:flex-row items-center gap-3">
                             <a href="{{ route('history.export') }}"
                                 onclick="this.href='{{ route('history.export') }}'+window.location.search"
                                 target="_blank"
-                                class="flex items-center gap-3 px-6 py-3.5 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition-all font-black text-sm shadow-xl shadow-green-900/20 tracking-widest uppercase">
-                                <i class="fa-solid fa-file-csv text-lg"></i>
-                                Export CSV
+                                class="w-full sm:w-auto flex justify-center items-center gap-3 px-6 py-3.5 bg-green-700 text-white rounded-2xl hover:bg-green-800 transition-all font-black text-sm shadow-xl shadow-green-900/20 tracking-widest uppercase">
+                                <i class="fa-solid fa-file-excel text-lg"></i>
+                                Export Excel
                             </a>
 
                             <button type="button" @click="open = !open"
-                                class="flex items-center gap-3 px-6 py-3.5 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all font-black text-sm shadow-xl shadow-red-900/20 tracking-widest uppercase">
+                                class="w-full sm:w-auto flex justify-center items-center gap-3 px-6 py-3.5 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all font-black text-sm shadow-xl shadow-red-900/20 tracking-widest uppercase">
                                 <i class="fa-solid fa-trash-can text-lg"></i>
                                 Hapus Riwayat
                                 <i class="fa-solid fa-chevron-down text-xs ml-2 transition-transform"
@@ -76,7 +76,7 @@
 
                         {{-- Panel Dropdown Pilihan Waktu --}}
                         <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-3 w-64 bg-white border-2 border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                            class="absolute right-0 mt-3 w-full sm:w-64 bg-white border-2 border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
                             x-transition:enter="transition ease-out duration-200"
                             x-transition:enter-start="opacity-0 scale-95"
                             x-transition:enter-end="opacity-100 scale-100">
@@ -136,9 +136,9 @@
             </header>
 
             {{-- 2. FILTER SECTION --}}
-            <div class="bg-white p-8 rounded-3xl shadow-md border border-gray-100 mb-8">
+            <div class="bg-white p-4 md:p-8 rounded-3xl shadow-md border border-gray-100 mb-8">
                 <form action="{{ route('history.index') }}" method="GET">
-                    <div class="grid grid-cols-12 gap-6 items-end">
+                    <div class="grid grid-cols-12 gap-4 md:gap-6 items-end">
                         <div class="col-span-12 md:col-span-2">
                             <label
                                 class="text-xs font-black text-slate-500 uppercase mb-2 block tracking-widest">Kondisi
@@ -188,9 +188,9 @@
                                     </button>
                                 </div>
                                 <button type="submit"
-                                    class="h-14 px-10 bg-orange-500 text-white rounded-2xl shadow-lg shadow-orange-100 flex items-center gap-3 font-black text-sm tracking-widest hover:bg-orange-600 transition-all uppercase">
+                                    class="h-14 px-6 md:px-10 bg-orange-500 text-white rounded-2xl shadow-lg shadow-orange-100 flex items-center gap-3 font-black text-sm tracking-widest hover:bg-orange-600 transition-all uppercase">
                                     <i class="fa-solid fa-search text-lg"></i>
-                                    CARI
+                                    <span class="hidden md:inline">CARI</span>
                                 </button>
                             </div>
                         </div>
@@ -200,62 +200,64 @@
 
             {{-- 3. TABLE SECTION --}}
             <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-                <table class="min-w-full">
-                    <thead class="bg-kai-navy text-white">
-                        <tr>
-                            <th class="px-8 py-8 text-left text-sm font-black uppercase tracking-[0.2em]">
-                                <div class="flex items-center gap-4">
-                                    <i class="fa-solid fa-server text-orange-400 text-lg"></i>
-                                    Perangkat & IP
-                                </div>
-                            </th>
-                            <th class="px-8 py-8 text-left text-sm font-black uppercase tracking-[0.2em]">
-                                <div class="flex items-center gap-4">
-                                    <i class="fa-solid fa-location-dot text-orange-400 text-lg"></i>
-                                    Lokasi Stasiun
-                                </div>
-                            </th>
-                            <th
-                                class="px-8 py-8 text-left text-sm font-black uppercase tracking-[0.2em] bg-red-900/20">
-                                <div class="flex items-center gap-4 text-red-200">
-                                    <i class="fa-solid fa-circle-arrow-down text-red-400 text-lg"></i>
-                                    Waktu DOWN
-                                </div>
-                            </th>
-                            <th
-                                class="px-8 py-8 text-left text-sm font-black uppercase tracking-[0.2em] bg-emerald-900/20">
-                                <div class="flex items-center gap-4 text-emerald-200">
-                                    <i class="fa-solid fa-circle-arrow-up text-emerald-400 text-lg"></i>
-                                    Waktu UP
-                                </div>
-                            </th>
-                            <th
-                                class="px-8 py-8 text-center text-sm font-black uppercase tracking-[0.2em] bg-kai-navy/80">
-                                <div class="flex items-center justify-center gap-4">
-                                    <i class="fa-solid fa-stopwatch text-orange-400 text-lg"></i>
-                                    Down Time
-                                </div>
-                            </th>
-                            <th
-                                class="px-8 py-8 text-center text-sm font-black uppercase tracking-[0.2em] bg-kai-navy/80">
-                                <div class="flex items-center justify-center gap-4">
-                                    <i class="fa-solid fa-circle-info text-orange-400 text-lg"></i>
-                                    Status
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-table-body" class="divide-y divide-gray-100">
-                        @include('components.history-table-rows', ['incidents' => $incidents])
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-kai-navy text-white">
+                            <tr>
+                                <th class="px-4 py-4 md:px-8 md:py-8 text-left text-xs md:text-sm font-black uppercase tracking-[0.2em] whitespace-nowrap">
+                                    <div class="flex items-center gap-4">
+                                        <i class="fa-solid fa-server text-orange-400 text-base md:text-lg"></i>
+                                        Perangkat & IP
+                                    </div>
+                                </th>
+                                <th class="px-4 py-4 md:px-8 md:py-8 text-left text-xs md:text-sm font-black uppercase tracking-[0.2em] whitespace-nowrap">
+                                    <div class="flex items-center gap-4">
+                                        <i class="fa-solid fa-location-dot text-orange-400 text-base md:text-lg"></i>
+                                        Lokasi Stasiun
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-4 py-4 md:px-8 md:py-8 text-left text-xs md:text-sm font-black uppercase tracking-[0.2em] bg-red-900/20 whitespace-nowrap">
+                                    <div class="flex items-center gap-4 text-red-200">
+                                        <i class="fa-solid fa-circle-arrow-down text-red-400 text-base md:text-lg"></i>
+                                        Waktu DOWN
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-4 py-4 md:px-8 md:py-8 text-left text-xs md:text-sm font-black uppercase tracking-[0.2em] bg-emerald-900/20 whitespace-nowrap">
+                                    <div class="flex items-center gap-4 text-emerald-200">
+                                        <i class="fa-solid fa-circle-arrow-up text-emerald-400 text-base md:text-lg"></i>
+                                        Waktu UP
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-4 py-4 md:px-8 md:py-8 text-center text-xs md:text-sm font-black uppercase tracking-[0.2em] bg-kai-navy/80 whitespace-nowrap">
+                                    <div class="flex items-center justify-center gap-4">
+                                        <i class="fa-solid fa-stopwatch text-orange-400 text-base md:text-lg"></i>
+                                        Down Time
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-4 py-4 md:px-8 md:py-8 text-center text-xs md:text-sm font-black uppercase tracking-[0.2em] bg-kai-navy/80 whitespace-nowrap">
+                                    <div class="flex items-center justify-center gap-4">
+                                        <i class="fa-solid fa-circle-info text-orange-400 text-base md:text-lg"></i>
+                                        Status
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-gray-100">
+                            @include('components.history-table-rows', ['incidents' => $incidents])
+                        </tbody>
+                    </table>
+                </div>
 
                 {{-- PAGINATION --}}
                 <div
-                    class="px-10 py-10 bg-slate-50 border-t border-gray-100 flex justify-between items-center font-bold">
-                    <p class="text-sm text-slate-400 italic font-medium tracking-wide text-kai-navy">Monitoring
+                    class="px-6 py-6 md:px-10 md:py-10 bg-slate-50 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 font-bold">
+                    <p class="text-xs md:text-sm text-slate-400 italic font-medium tracking-wide text-kai-navy text-center md:text-left">Monitoring
                         Perangkat Jaringan DAOP 3 Cirebon</p>
-                    <div class="pagination-custom">
+                    <div class="pagination-custom w-full md:w-auto overflow-x-auto flex justify-center md:justify-end">
                         {{ $incidents->links() }}
                     </div>
                 </div>

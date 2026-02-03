@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,7 +37,7 @@ Route::middleware('auth')->group(function () {
     // HISTORY
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
     Route::get('/history/data', [HistoryController::class, 'getTableData'])->name('history.data');
-    Route::get('/history/export', [HistoryController::class, 'export'])->name('history.export');
+    Route::get('/history/export', [App\Http\Controllers\ExportController::class, 'export'])->name('history.export');
     Route::delete('/history/reset', [HistoryController::class, 'reset'])->name('history.reset');
 
     // SETTINGS
