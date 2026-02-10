@@ -59,7 +59,6 @@
                         <div class="flex flex-col sm:flex-row items-center gap-3">
                             <a href="{{ route('history.export') }}"
                                 onclick="this.href='{{ route('history.export') }}'+window.location.search"
-                                target="_blank"
                                 class="w-full sm:w-auto flex justify-center items-center gap-3 px-6 py-3.5 bg-green-700 text-white rounded-2xl hover:bg-green-800 transition-all font-black text-sm shadow-xl shadow-green-900/20 tracking-widest uppercase">
                                 <i class="fa-solid fa-file-excel text-lg"></i>
                                 Export Excel
@@ -282,4 +281,22 @@
                 .catch(error => console.error('Error refreshing history:', error));
         }, 5000); // Refresh setiap 5 detik
     </script>
+
+    @if(session('error'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'DATA KOSONG',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#15803d', // Warna hijau emerald
+            background: '#ffffff',
+            customClass: {
+                popup: 'rounded-3xl',
+                title: 'font-black uppercase tracking-widest text-red-600',
+                confirmButton: 'rounded-xl px-10 py-3 uppercase tracking-widest font-bold'
+            }
+        });
+    </script>
+    @endif
 </x-app-layout>
