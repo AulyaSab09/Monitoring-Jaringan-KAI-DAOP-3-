@@ -42,6 +42,11 @@ class ExportController extends Controller
         
         $incidents = $query->get(); // Ambil semua data (bukan paginate)
 
+        // --- TAMBAHKAN ERROR HANDLING DISINI ---
+        if ($incidents->isEmpty()) {
+            return back()->with('error', 'Data tidak ditemukan! Tidak ada riwayat gangguan untuk diekspor.');
+        }
+
         // B. Buat Spreadsheet Baru
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
