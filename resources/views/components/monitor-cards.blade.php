@@ -110,8 +110,21 @@
                             <div class="led {{ $ledColorClass }}"></div>
                             <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 1s"></div>
                             <div class="led {{ $ledColorClass }} animate-pulse" style="animation-duration: 2s"></div>
+                            
                             <div class="led bg-blue-400"></div>
                         </div>
+                        <div class="gigabit-ports">
+                        @for($i = 1; $i <= 8; $i++)
+                            <div class="port-item">
+                                <div class="port-indicator {{ $i % 4 == 0 ? $ledColorClass . ' animate-pulse' : 'bg-slate-400' }}" 
+                                    style="animation-duration: {{ 0.8 + ($i % 3) * 0.3 }}s"></div>
+                                <div class="port-slot {{ $i % 3 == 0 ? 'active' : '' }}">
+                                    <div class="port-connector"></div>
+                                </div>
+                                <span class="port-label">{{ $i }}</span>
+                            </div>
+                        @endfor
+                    </div>
 
                 @endif
 

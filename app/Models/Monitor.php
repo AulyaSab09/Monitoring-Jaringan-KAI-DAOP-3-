@@ -20,6 +20,7 @@ class Monitor extends Model
         'latency',
         'parent_id',
         'history',
+        'sort_order'
     ];
 
     protected $casts = [

@@ -81,7 +81,7 @@ class HistoryController extends Controller
             });
         }
 
-        $incidents = $query->paginate(10)->withQueryString();
+        $incidents = $query->paginate(100)->withQueryString();
 
         return view('components.history-table-rows', compact('incidents'));
     }
