@@ -120,20 +120,13 @@ function checkStatusChange(id, newStatus) {
         console.log(`⚡ Status berubah: Device ${id}: ${oldStatus} → ${newStatus}`);
 
         if (newStatus === 'connected' && oldStatus === 'disconnected') {
-            console.log(`🟢 Device ${id} CONNECTED!`);
+            console.log(`🟢 Device ${id} RECOVERED (Down to Up)!`);
             playNotificationSound('connect');
-        } else if (newStatus === 'disconnected' && oldStatus === 'connected') {
-            console.log(`🔴 Device ${id} DISCONNECTED!`);
-            playNotificationSound('disconnect');
         } else if (newStatus === 'disconnected' && oldStatus !== 'disconnected') {
-            console.log(`🔴 Device ${id} DISCONNECTED!`);
+            console.log(`🔴 Device ${id} CRITICAL (Now Down)!`);
             playNotificationSound('disconnect');
-        } else if (newStatus === 'connected' && oldStatus !== 'connected') {
-            console.log(`🟢 Device ${id} CONNECTED!`);
-            playNotificationSound('connect');
-        }
+        } 
     }
-
     // Update status simpanan
     previousStatus.set(id, newStatus);
 }
@@ -481,7 +474,7 @@ const parser = new DOMParser();
 function refreshData() {
     if (isDragging) return;
 
-    fetch(monitorDataUrl + "?t=" + new Date().getTime())
+    fetch(monitorDataUrl)
         .then(r => r.text())
         .then(html => {
             const doc = parser.parseFromString(html, 'text/html');
@@ -694,7 +687,17 @@ function updateDownQueue() {
     if (!container) return;
 
     // Ambil semua monitor-card yang statusnya disconnected
-    const downCards = Array.from(document.querySelectorAll('.monitor-card[data-status="disconnected"]'));
+    const allDownCards = Array.from(document.querySelectorAll('.monitor-card[data-status="disconnected"]'));
+    
+    // FILTER LOGIC: Hanya ambil perangkat yang sudah down >= 60 detik
+    const downCards = allDownCards.filter(card => {
+        const downSince = new Date(card.getAttribute('data-down-since'));
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - downSince) / 1000);
+        
+        // Return true jika sudah 1 menit (60 detik)
+        return diffInSeconds >= 60;
+    });
 
     // Jika tidak ada yang down, tampilkan pesan aman
     if (downCards.length === 0) {
@@ -746,34 +749,34 @@ function updateDownQueue() {
 
             // Template kotak antrean yang sudah diselaraskan
             const template = `
-    <div class="down-alert-card bg-white border-l-8 border-red-600 shadow-lg p-3 rounded-xl flex-none" 
-         style="min-width: 300px; width: auto; max-width: fit-content;" 
-         data-alert-id="${id}">
-        
-        <div class="flex items-center justify-between gap-4">
-            
-            <div class="flex-none whitespace-nowrap">
-                <div class="device-name font-black text-slate-900 leading-none" 
-                     style="font-size: 22px !important; display: block !important; margin: 0 !important;">
-                    ${name}
-                </div>
-                <div class="text-[10px] text-red-500 font-bold italic mt-1">
-                    Down: ${timeString} WIB
-                </div>
-            </div>
+            <div class="down-alert-card bg-white border-l-8 border-red-600 shadow-lg p-3 rounded-xl flex-none" 
+                style="min-width: 300px; width: auto; max-width: fit-content;" 
+                data-alert-id="${id}">
+                
+                <div class="flex items-center justify-between gap-4">
+                    
+                    <div class="flex-none whitespace-nowrap">
+                        <div class="device-name font-black text-slate-900 leading-none" 
+                            style="font-size: 22px !important; display: block !important; margin: 0 !important;">
+                            ${name}
+                        </div>
+                        <div class="text-[10px] text-red-500 font-bold italic mt-1">
+                            Down: ${timeString} WIB
+                        </div>
+                    </div>
 
-            <div class="duration-timer bg-red-700 text-white py-1.5 px-3 rounded-lg text-center font-mono font-black text-lg shadow-inner" 
-                 data-start-time="${downSince}">
-                00j 00m 00d
-            </div>
+                    <div class="duration-timer bg-red-700 text-white py-1.5 px-3 rounded-lg text-center font-mono font-black text-lg shadow-inner" 
+                        data-start-time="${downSince}">
+                        00j 00m 00d
+                    </div>
 
-            <div class="flex-none">
-                <div class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></div>
+                    <div class="flex-none">
+                        <div class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></div>
+                    </div>
+                    
+                </div> 
             </div>
-            
-        </div> 
-    </div>
-`;
+        `;
 
             // 'afterbegin' memastikan elemen baru masuk ke posisi paling kiri
             container.insertAdjacentHTML('afterbegin', template);

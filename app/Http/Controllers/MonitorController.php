@@ -7,6 +7,38 @@ use Illuminate\Http\Request;
 
 class MonitorController extends Controller
 {
+    private function handleReordering($parentId, $afterDeviceId, $excludeId = null)
+{
+    // Normalisasi parentId agar benar-benar null jika kosong
+    $parentId = ($parentId == "") ? null : $parentId;
+
+    if ($afterDeviceId === 'first') {
+        $targetOrder = 1;
+    } else {
+        $reference = Monitor::find($afterDeviceId);
+        $targetOrder = $reference ? $reference->sort_order + 1 : 1;
+    }
+
+    $query = Monitor::where('sort_order', '>=', $targetOrder);
+    
+    if (is_null($parentId)) {
+        $query->whereNull('parent_id');
+    } else {
+        $query->where('parent_id', $parentId);
+    }
+
+    if ($excludeId) {
+        $query->where('id', '!=', $excludeId);
+    }
+
+    $affected = $query->get();
+    foreach ($affected as $device) {
+        $device->increment('sort_order');
+    }
+
+    return $targetOrder;
+}
+    
     public function index()
     {
         // Ambil hanya device parent (tanpa parent_id) dengan children-nya
@@ -14,17 +46,23 @@ class MonitorController extends Controller
         // Ambil device berdasarkan ZONE (hanya yang parent_id NULL alias Root)
         // Load children recursive
         $centers = Monitor::whereNull('parent_id')->center()
-            ->with(['children' => function($q) { $q->orderBy('id', 'asc'); }, 'children.latestIncident', 'latestIncident'])
-            ->orderBy('id', 'asc')->get();
+            ->with(['children' => function($q) { 
+                $q->orderBy('sort_order', 'asc'); // Urutkan anak
+            }, 'children.latestIncident', 'latestIncident'])
+            ->orderBy('sort_order', 'asc')->get();
 
         $utaras = Monitor::whereNull('parent_id')->lintasUtara()
-            ->with(['children' => function($q) { $q->orderBy('id', 'asc'); }, 'children.latestIncident', 'latestIncident'])
-            ->orderBy('id', 'asc')->get();
+            ->with(['children' => function($q) { 
+                $q->orderBy('sort_order', 'asc'); 
+            }, 'children.latestIncident', 'latestIncident'])
+            ->orderBy('sort_order', 'asc')->get();
 
         $selatans = Monitor::whereNull('parent_id')->lintasSelatan()
-            ->with(['children' => function($q) { $q->orderBy('id', 'asc'); }, 'children.latestIncident', 'latestIncident'])
-            ->orderBy('id', 'asc')->get();
-        
+            ->with(['children' => function($q) { 
+                $q->orderBy('sort_order', 'asc'); 
+            }, 'children.latestIncident', 'latestIncident'])
+            ->orderBy('sort_order', 'asc')->get();
+
         // Hitung statistik untuk header - Optimized
         $total = Monitor::count();
         $up = Monitor::where('status', 'Connected')->count();
@@ -40,16 +78,16 @@ class MonitorController extends Controller
         // untuk tampilan tree yang proper (sama seperti index)
         // Sama seperti index, pisahkan by zone
         $centers = Monitor::whereNull('parent_id')->center()
-            ->with(['children' => function($q) { $q->orderBy('id', 'asc'); }, 'children.latestIncident', 'latestIncident'])
-            ->orderBy('id', 'asc')->get();
+            ->with(['children' => function($q) { $q->orderBy('sort_order', 'asc'); }, 'children.latestIncident', 'latestIncident'])
+            ->orderBy('sort_order', 'asc')->get();
 
         $utaras = Monitor::whereNull('parent_id')->lintasUtara()
-            ->with(['children' => function($q) { $q->orderBy('id', 'asc'); }, 'children.latestIncident', 'latestIncident'])
-            ->orderBy('id', 'asc')->get();
+            ->with(['children' => function($q) { $q->orderBy('sort_order', 'asc'); }, 'children.latestIncident', 'latestIncident'])
+            ->orderBy('sort_order', 'asc')->get();
 
         $selatans = Monitor::whereNull('parent_id')->lintasSelatan()
-            ->with(['children' => function($q) { $q->orderBy('id', 'asc'); }, 'children.latestIncident', 'latestIncident'])
-            ->orderBy('id', 'asc')->get();
+            ->with(['children' => function($q) { $q->orderBy('sort_order', 'asc'); }, 'children.latestIncident', 'latestIncident'])
+            ->orderBy('sort_order', 'asc')->get();
 
         // Kita bisa return array view render atau kirim structure
         // Tapi component 'monitor-cards' expect variable $monitors.
@@ -69,131 +107,142 @@ class MonitorController extends Controller
         if (request()->has('parent_id')) {
             $parentDevice = Monitor::find(request('parent_id'));
         }
-        return view('monitor.create', compact('parentDevice'));
+
+        $allMonitors = Monitor::select('id', 'name')->orderBy('name', 'asc')->get();
+
+        return view('monitor.create', compact('parentDevice', 'allMonitors'));
     }
 
     // Proses Simpan Data Baru
     public function store(Request $request)
-    {
-        // Check if this is a child device
-        $isChildDevice = $request->has('parent_id') && $request->parent_id;
+{
+    // 1. Identifikasi apakah ini perangkat anak (child)
+    $isChildDevice = $request->has('parent_id') && $request->parent_id;
 
-        // Base validation rules
-        $rules = [
-            'ip_address' => 'required|ipv4|unique:monitors,ip_address',
-            'name' => 'required|string|max:255',
-            'type' => 'required|string',
-        ];
+    // 2. Validasi Input Dasar
+    $rules = [
+        'ip_address' => 'required|ipv4|unique:monitors,ip_address',
+        'name' => 'required|string|max:255',
+        'type' => 'required|string',
+        'after_device_id' => 'required', // Wajib memilih posisi (Awal atau Setelah X)
+    ];
 
-        // Zone is only required for ROOT devices (no parent)
-        if (!$isChildDevice) {
-            $rules['zone'] = 'required|in:center,lintas utara,lintas selatan';
-        }
-
-        $messages = [
-            'ip_address.unique' => 'Sudah ada ip perangkat itu, harap ganti.',
-        ];
-
-        $request->validate($rules, $messages);
-
-        // VALIDASI LOGIKA BISNIS (only for root devices):
-        if (!$isChildDevice && $request->zone !== 'center') {
-            $centerExists = Monitor::where('zone', 'center')->exists();
-            if (!$centerExists) {
-                return back()->withInput()->with('error', 'Anda harus menambahkan Perangkat Pusat (Center) terlebih dahulu sebelum menambahkan jalur Utara/Selatan.');
-            }
-        }
-
-        // For child devices, inherit zone from parent
-        $zone = $request->zone;
-        if ($isChildDevice) {
-            $parentDevice = Monitor::find($request->parent_id);
-            $zone = $parentDevice ? $parentDevice->zone : 'center';
-        }
-
-        Monitor::create([
-            'ip_address' => $request->ip_address,
-            'name' => $request->name,
-            'type' => $request->type,
-            'location' => $request->location,
-            'kode_lokasi' => $request->kode_lokasi,
-            'parent_id' => $request->parent_id,
-            'zone' => $zone,
-            'status' => 'Pending',
-            'latency' => 0,
-        ]);
-
-        return redirect('/preview')->with('success', 'Device berhasil ditambahkan!');
+    // Zone wajib hanya untuk perangkat ROOT
+    if (!$isChildDevice) {
+        $rules['zone'] = 'required|in:center,lintas utara,lintas selatan';
     }
+
+    $messages = [
+        'ip_address.unique' => 'Sudah ada ip perangkat itu, harap ganti.',
+    ];
+
+    $request->validate($rules, $messages);
+
+    // 3. LOGIKA PENENTUAN URUTAN (Layouting)
+    // Memanggil handleReordering yang sekarang menerima ID referensi, bukan angka manual
+    $autoOrder = $this->handleReordering(
+        $request->parent_id, 
+        $request->after_device_id
+    );
+
+    // 4. VALIDASI LOGIKA BISNIS (Khusus Root Device)
+    if (!$isChildDevice && $request->zone !== 'center') {
+        $centerExists = Monitor::where('zone', 'center')->exists();
+        if (!$centerExists) {
+            return back()->withInput()->with('error', 'Anda harus menambahkan Perangkat Pusat (Center) terlebih dahulu sebelum menambahkan jalur Utara/Selatan.');
+        }
+    }
+
+    // 5. Penentuan Zone (Anak mewarisi zone dari Induk)
+    $zone = $request->zone;
+    if ($isChildDevice) {
+        $parentDevice = Monitor::find($request->parent_id);
+        $zone = $parentDevice ? $parentDevice->zone : 'center';
+    }
+
+    // 6. Simpan Data ke Database
+    Monitor::create([
+        'ip_address' => $request->ip_address,
+        'name' => $request->name,
+        'type' => $request->type,
+        'location' => $request->location,
+        'kode_lokasi' => $request->kode_lokasi,
+        'parent_id' => $request->parent_id ?: null,
+        'sort_order' => $autoOrder, // Menggunakan hasil kalkulasi handleReordering
+        'zone' => $zone,
+        'status' => 'Pending',
+        'latency' => 0,
+    ]);
+
+    return redirect('/preview')->with('success', 'Device berhasil ditambahkan di posisi yang dipilih!');
+}
 
     // Halaman Form Edit
     public function edit($id)
     {
         $monitor = Monitor::findOrFail($id);
-        // Ambil semua device lain untuk pilihan parent (exclude device ini sendiri dan children-nya)
-        // Optimized: Only select id and name
-        $allMonitors = Monitor::where('id', '!=', $id)->select('id', 'name')->get();
+        
+        // Ambil semua device kecuali dirinya sendiri agar tidak terjadi error hirarki
+        $allMonitors = Monitor::where('id', '!=', $id)
+                            ->select('id', 'name')
+                            ->orderBy('name', 'asc')
+                            ->get();
+
         return view('monitor.edit', compact('monitor', 'allMonitors'));
     }
 
     // Proses Update Data
     public function update(Request $request, $id)
-    {
-        // Check if this is a child device (has parent_id in DB or being set now)
-        $currentDevice = Monitor::findOrFail($id);
-        $isChildDevice = $currentDevice->parent_id || $request->parent_id;
+{
+    $currentDevice = Monitor::findOrFail($id);
+    $newParentId = $request->parent_id ?: null;
 
-        // Base validation rules
-        $rules = [
-            'ip_address' => 'required|ipv4',
-            'name' => 'required|string|max:255',
-            'type' => 'required|string',
-        ];
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'ip_address' => 'required|ipv4',
+        'after_device_id' => 'required',
+    ]);
 
-        // Zone is only required for ROOT devices (no parent)
-        if (!$isChildDevice) {
-            $rules['zone'] = 'required|in:center,lintas utara,lintas selatan';
-        }
+    // 1. Hitung urutan baru
+    $newSortOrder = $this->handleReordering($newParentId, $request->after_device_id, $id);
 
-        $request->validate($rules);
-
-        // VALIDASI LOGIKA BISNIS (UPDATE) - Only for root devices with zone
-        if (!$isChildDevice && $request->zone !== 'center') {
-            $otherCenterExists = Monitor::where('zone', 'center')->where('id', '!=', $id)->exists();
-            $isCurrentlyCenter = $currentDevice->zone === 'center';
-            
-            if ($isCurrentlyCenter) {
-                if (!$otherCenterExists) {
-                     return back()->withInput()->with('error', 'Ini adalah satu-satunya device Center. Tambahkan device Center lain sebelum mengubah zona device ini.');
-                }
-            } else {
-                if (!Monitor::where('zone', 'center')->exists()) {
-                     return back()->withInput()->with('error', 'Anda harus memiliki setidaknya satu Perangkat Pusat (Center).');
-                }
-            }
-        }
-
-        // Prepare update data
-        $updateData = [
-            'ip_address' => $request->ip_address,
-            'name' => $request->name,
-            'type' => $request->type,
-            'location' => $request->location,
-            'kode_lokasi' => $request->kode_lokasi,
-            'parent_id' => $request->parent_id ?: null,
-            'status' => 'Pending', 
-            'latency' => 0
-        ];
-
-        // Only update zone for root devices
-        if (!$isChildDevice && $request->has('zone')) {
-            $updateData['zone'] = $request->zone;
-        }
-
-        $currentDevice->update($updateData);
-
-        return redirect('/preview')->with('success', 'Device berhasil diupdate!');
+    // 2. Tentukan Zona (PENTING: Agar muncul di kolom dashboard yang benar)
+    $newZone = $request->zone;
+    if ($newParentId) {
+        $parent = Monitor::find($newParentId);
+        $newZone = $parent->zone;
     }
+
+    $updateData = [
+        'name'        => $request->name,
+        'ip_address'  => $request->ip_address,
+        'type'        => $request->type,
+        'location'    => $request->location,
+        'kode_lokasi' => $request->kode_lokasi,
+        'parent_id'   => $newParentId,
+        'sort_order'  => $newSortOrder,
+        'zone'        => $newZone,
+    ];
+
+    $currentDevice->update($updateData);
+
+    // 3. Sinkronkan semua anak agar ikut pindah zona dashboard
+    $this->syncChildrenZone($currentDevice);
+
+    // 4. Pastikan redirect ke path dashboard yang benar
+    return redirect('/preview')->with('success', 'Update Berhasil!');
+}
+
+// Tambahkan fungsi pembantu baru ini di bawah fungsi update
+private function syncChildrenZone($parent)
+{
+    foreach ($parent->children as $child) {
+        $child->update(['zone' => $parent->zone]);
+        if ($child->children->count() > 0) {
+            $this->syncChildrenZone($child); // Rekursif untuk cucu, cicit, dst.
+        }
+    }
+}
 
     // Proses Hapus Data
     public function destroy($id)
@@ -206,11 +255,11 @@ class MonitorController extends Controller
 
     // Method baru untuk AJAX
     public function getTableData()
-    {
-        $monitors = Monitor::orderBy('id', 'asc')->get();
-        // Kita return view yang POTONGAN tadi (components/monitor-rows)
-        return view('components.monitor-cards', compact('monitors'));
-    }
+{
+    // WAJIB ganti ID menjadi sort_order agar tampilan kartu konsisten
+    $monitors = Monitor::orderBy('sort_order', 'asc')->get();
+    return view('components.monitor-cards', compact('monitors'));
+}
 
     // Method baru khusus untuk update realtime
     public function getMonitorJson()
