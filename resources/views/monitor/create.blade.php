@@ -89,21 +89,21 @@
                     </div>
                 </div>
 
-                {{-- DROP DOWN POSISI LAYOUT (PENGGANTI ANGKA MANUAL) --}}
+                {{-- DROP DOWN POSISI LAYOUT --}}
                 <div class="space-y-3">
-                    <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Posisi di Dashboard (Urutan)</label>
+                    <label class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Letakkan Setelah</label>
                     <div class="relative bg-emerald-50 p-6 rounded-3xl border-2 border-emerald-100">
                         <select name="after_device_id" class="w-full appearance-none px-6 py-5 bg-white border-2 border-emerald-400 rounded-2xl font-black text-xl text-emerald-700 shadow-sm outline-none focus:ring-4 focus:ring-emerald-100 cursor-pointer">
-                            <option value="first">--- Letakkan di Paling Kiri (Urutan Pertama) ---</option>
-                            @foreach($allMonitors as $ref)
-                                <option value="{{ $ref->id }}">
-                                    Setelah {{ $ref->name }} ({{ $ref->kode_lokasi }})
+                            <option value="first">--- Letakkan di Paling Awal (Urutan Pertama) ---</option>
+                            @foreach($allMonitors->whereNull('parent_id')->sortBy('sort_order') as $ref)
+                                <option value="{{ $ref->id }}" {{ old('after_device_id') == $ref->id ? 'selected' : '' }}>
+                                    Setelah: {{ $ref->name }}{{ $ref->kode_lokasi ? ' ('.$ref->kode_lokasi.')' : '' }}
                                 </option>
                             @endforeach
                         </select>
                         <i class="fa-solid fa-map-location-dot absolute right-12 top-1/2 -translate-y-1/2 text-emerald-600 opacity-50 text-2xl"></i>
                         <p class="text-[11px] text-emerald-600 mt-3 font-medium italic">
-                            * Pilih perangkat yang akan berada di sebelah kiri perangkat baru ini.
+                            * Pilih perangkat referensi. Device baru akan disisipkan tepat setelah perangkat yang dipilih.
                         </p>
                     </div>
                 </div>
