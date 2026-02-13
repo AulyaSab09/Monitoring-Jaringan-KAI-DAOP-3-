@@ -160,6 +160,7 @@
                         </div>
 
                         {{-- POSISI / URUTAN --}}
+                        @if ($monitor->parent_id == null)
                         <div class="space-y-3">
                             <label
                                 class="text-lg font-black uppercase tracking-[0.2em] text-kai-navy opacity-80">Letakkan
@@ -187,6 +188,7 @@
                                 </p>
                             </div>
                         </div>
+                        @endif
                     </div>
 
                     <div class="pt-12 flex flex-col md:flex-row items-center gap-8">

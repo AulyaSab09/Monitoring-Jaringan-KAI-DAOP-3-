@@ -14,8 +14,7 @@ class HistoryController extends Controller
     public function index(Request $request)
     {
         // Query Dasar
-        $query = Incident::with('monitor')->orderBy('down_at', 'desc')
-            ->whereRaw('TIMESTAMPDIFF(SECOND, down_at, COALESCE(up_at, NOW())) >= 60');
+        $query = Incident::with('monitor')->orderBy('down_at', 'desc');
 
         // Filter Status
         if ($request->filled('status')) {
@@ -54,8 +53,7 @@ class HistoryController extends Controller
     // =================================================================
     public function getTableData(Request $request)
     {
-        $query = Incident::with('monitor')->orderBy('down_at', 'desc')
-            ->whereRaw('TIMESTAMPDIFF(SECOND, down_at, COALESCE(up_at, NOW())) >= 60');
+        $query = Incident::with('monitor')->orderBy('down_at', 'desc');
 
         if ($request->filled('status')) {
             if ($request->status == 'resolved') {

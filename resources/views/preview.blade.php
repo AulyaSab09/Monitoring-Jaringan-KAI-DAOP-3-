@@ -118,11 +118,10 @@
             </div>
         </header>
 
-        <div id="tree-container"
-            class="tree-container bg-white shadow-sm overflow-auto h-[calc(100vh-250px)] rounded-3xl border border-gray-200">
-
+        <div class="relative">
+            {{-- Zoom Controls - positioned outside the scrollable container --}}
             <div
-                class="absolute top-4 right-4 z-30 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-gray-200">
+                class="absolute top-4 right-4 z-40 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-gray-200">
                 <button onclick="zoomIn()"
                     class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-blue-500 hover:text-white rounded-lg transition-colors font-bold text-gray-600"
                     title="Zoom In">
@@ -146,11 +145,17 @@
                 </button>
             </div>
 
-            <div id="tree-viewport" class="tree-viewport">
-                <svg id="tree-lines-svg" class="tree-lines-svg"></svg>
+            <div id="tree-container"
+                class="tree-container bg-white shadow-sm overflow-auto h-[calc(100vh-250px)] rounded-3xl border border-gray-200">
 
-                <div id="tree-wrapper" class="tree-wrapper w-full h-full">
-                    @include('components.monitor-zone-wrapper', compact('centers', 'utaras', 'selatans'))
+                <div id="tree-viewport" class="tree-viewport">
+                    <svg id="tree-lines-svg" class="tree-lines-svg"></svg>
+
+                    <div id="tree-wrapper" class="tree-wrapper w-full h-full">
+                        @include(
+                            'components.monitor-zone-wrapper',
+                            compact('centers', 'utaras', 'selatans'))
+                    </div>
                 </div>
             </div>
         </div>
