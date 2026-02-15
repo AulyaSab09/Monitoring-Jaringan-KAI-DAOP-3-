@@ -9,6 +9,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+
+
 /* === FLOATING IDENTITY LABEL === */
 .floating-identity {
     position: absolute;
@@ -303,9 +305,9 @@ body {
     }
 } */
 
-.latency-danger-pulse {
+/* .latency-danger-pulse {
     animation: latency-neon-flash 1s infinite alternate !important;
-}
+} */
 
 /* bg-[#FFDCDC] text-[#82181A]"> */
 
@@ -344,23 +346,17 @@ body {
     }
 }
 
-.latency-danger-pulse {
+/* .latency-danger-pulse {
     animation: latency-glow 1.2s infinite ease-in-out;
-}
+} */
 
-@keyframes latency-glow {
-
-    0%,
-    100% {
-        background-color: #fee2e2;
-        border-color: #ef4444;
-    }
-
-    50% {
-        background-color: #ef4444;
-        border-color: #7f1d1d;
-        color: white !important;
-    }
+/* REVISI: Hilangkan kodingan @keyframes latency-glow dan ganti class ini */
+.latency-danger-pulse {
+    background-color: #ef4444 !important; /* Merah solid */
+    border-color: #b91c1c !important; /* Border merah gelap */
+    color: white !important;
+    animation: none !important; /* MATIKAN ANIMASI */
+    box-shadow: none !important; /* Hapus efek glow neon */
 }
 
 /* ============================================================
@@ -1008,12 +1004,13 @@ body {
 }
 
 .down-alert-card .duration-timer {
-    background: #b91c1c;
-    color: #ffffff;
+    background: #b91c1c !important; /* Merah KAI */
+    color: #ffffff !important;
     padding: 0.4rem;
     border-radius: 0.5rem;
     text-align: center;
     font-weight: 900;
     font-size: 1.1rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: none !important; /* Pastikan tidak ada animasi */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important; /* Hanya bayangan dalam untuk efek dimensi, bukan glow */
 }

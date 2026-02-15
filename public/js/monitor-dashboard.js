@@ -225,126 +225,55 @@ window.zoomOut = () => { currentZoom -= 0.2; updateTransform(); };
 window.setZoom = setZoom;
 window.resetZoom = () => {
     const cards = document.querySelectorAll('.monitor-card');
-    if (cards.length === 0) {
-        currentZoom = 1;
-        panX = 0;
-        panY = 0;
-        updateTransform();
-        return;
-    }
-
-    // 1. Get Viewport/Container Dimensions
     const container = document.getElementById('tree-container');
-    const cRect = container.getBoundingClientRect();
-    const cWidth = cRect.width;
-    const cHeight = cRect.height;
+    const viewport = document.getElementById('tree-viewport');
+    
+    if (cards.length === 0 || !container || !viewport) return;
 
-    // 2. Calculate Content Bounding Box (Unscaled coordinates)
-    // We need to find the Min/Max X/Y of all cards relative to the viewport origin (0,0 of the transform)
-    // The visual position is affected by currentZoom/pan, so we must reverse-calculate or use offsetLeft/Top if trustworthy.
-    // However, monitor-dashboard uses absolute/relative positioning mix.
-    // Safest is to get clientRects and un-project them based on CURRENT transform.
-
+    // 1. Reset ke posisi netral agar pembacaan koordinat akurat
+    viewport.style.transform = "none";
+    
+    // 2. Kalkulasi area terluar kartu (Bounding Box)
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
-    // Helper to get unprojected coordinates from a client rect
-    // Current Transform: (x * zoom) + panX = clientX (relative to container 0,0)
-    // So: x = (clientX - panX) / zoom
-
-    // BUT simpler: The 'panX/panY' applies to the #tree-viewport.
-    // We can just get coordinates relative to the #tree-viewport element itself?
-    // Actually, getBoundingClientRect returns screen coords.
-    // Let's use the viewport rect as reference.
-    const vpRect = viewport.getBoundingClientRect(); // This is the transformed viewport
-
-    // It's tricky because the viewport itself is transformed.
-    // BETTER STRATEGY: 
-    // The cards are inside #tree-viewport -> #tree-lines-svg (or mix).
-    // Let's look at the tree-node elements which likely wrap the cards.
+    const vRect = viewport.getBoundingClientRect();
 
     cards.forEach(card => {
-        // Get card rect relative to the viewport's origin (top-left of #tree-viewport content)
-        // Since viewport is transformed, we can't use offsetLeft easily if it's nested deep.
-        // Let's reverse-engineer from ClientRect.
+        const cRect = card.getBoundingClientRect();
+        const x = cRect.left - vRect.left;
+        const y = cRect.top - vRect.top;
 
-        const rect = card.getBoundingClientRect();
-
-        // Un-project coordinates relative to the VIRTUAL origin of the viewport
-        // virtualX = (screenX - viewportScreenX) / currentZoom ? 
-        // No, (screenX - (vpRect.left - panX)) / currentZoom ??
-        // Let's stick to the logic used in drawTreeLines:
-        // x = (elRect.left - vpRect.left) / currentZoom
-        // NOTE: vpRect.left includes the panX !
-
-        // Correct Formula for position relative to the SCALED viewport content origin:
-        // relX_scaled = rect.left - vpRect.left;
-        // relY_scaled = rect.top - vpRect.top;
-
-        // Unscaled relative position (Local coordinate system of the content)
-        // x = relX_scaled / currentZoom
-        // y = relY_scaled / currentZoom
-
-        const x = (rect.left - vpRect.left) / currentZoom;
-        const y = (rect.top - vpRect.top) / currentZoom;
-        const w = rect.width / currentZoom;
-        const h = rect.height / currentZoom;
-
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x + w > maxX) maxX = x + w;
-        if (y + h > maxY) maxY = y + h;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x + cRect.width);
+        maxY = Math.max(maxY, y + cRect.height);
     });
 
-    // Validitas check
-    if (minX === Infinity) return;
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
 
-    // 3. Current Content Dimensions
-    const contentWidth = maxX - minX;
-    const contentHeight = maxY - minY;
-
-    // Add Padding (e.g. 50px buffer)
-    const padding = 60;
-    const targetContentW = contentWidth + (padding * 2);
-    const targetContentH = contentHeight + (padding * 2);
-
-    // 4. Calculate Scale needed to fit Container
-    const scaleX = cWidth / targetContentW;
-    const scaleY = cHeight / targetContentH;
+    // 3. Tentukan Zoom dengan Padding Dinamis (80px)
+    const padding = 80;
+    const scaleX = containerW / (contentW + (padding * 2));
+    const scaleY = containerH / (contentH + (padding * 2));
+    
+    // Pilih skala terkecil agar muat secara horizontal maupun vertikal
     let newZoom = Math.min(scaleX, scaleY);
+    
+    // Batasan zoom agar tetap proporsional
+    newZoom = Math.max(0.1, Math.min(newZoom, 1.2));
 
-    // 5. Constraints
-    // - Jika devicenya dikit (area kecil), jangan zoom in terlalu parah (misal max 1.2x)
-    // - Jika butuh zoom out (newZoom < 1), biarkan (agar muat)
-    // - User request: "jika dikit device boleh agak zoom" -> Max limit 1.2 or 1.5
-
-    const maxZoom = cards.length < 5 ? 1.5 : 1.0;
-    newZoom = Math.min(newZoom, maxZoom);
-
-    // Minimum zoom to prevent disappearing
-    newZoom = Math.max(newZoom, 0.1);
-
+    // 4. Kalkulasi Pan (Pusatkan konten ke tengah layar)
+    // Titik tengah layar dikurangi (titik tengah konten yang sudah di-zoom)
+    panX = (containerW / 2) - ((minX + contentW / 2) * newZoom);
+    panY = (containerH / 2) - ((minY + contentH / 2) * newZoom);
+    
     currentZoom = newZoom;
 
-    // 6. Center the Bounding Box
-    // Calculate where the content IS relative to viewport origin
-    // Center point of content:
-    const contentCenterX = minX + (contentWidth / 2);
-    const contentCenterY = minY + (contentHeight / 2);
-
-    // We want this point to be at the center of the CONTAINER
-    // Transform Formula: translate(panX, panY) scale(zoom)
-    // ScreenX = (LocalX * Zoom) + PanX
-    // Target ScreenX = cWidth / 2
-    // cWidth/2 = (contentCenterX * newZoom) + PanX
-    // PanX = (cWidth / 2) - (contentCenterX * newZoom)
-
-    panX = (cWidth / 2) - (contentCenterX * newZoom);
-    panY = (cHeight / 2) - (contentCenterY * newZoom);
-
-    // 7. Apply
-    console.log(`🔎 SMART FIT: Found ${cards.length} devices. Bounds: [${Math.round(minX)}, ${Math.round(minY)}] to [${Math.round(maxX)}, ${Math.round(maxY)}]. Zoom: ${currentZoom.toFixed(2)}`);
-
+    // 5. Eksekusi Transformasi
     updateTransform();
+    console.log(`✅ Fit Berhasil: Zoom ${newZoom.toFixed(2)}`);
 };
 window.enableSound = enableSound;
 window.toggleBranch = toggleBranch;
