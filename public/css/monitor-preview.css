@@ -9,7 +9,37 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Mode Fit / Zoom Jauh aktif */
+.hide-latency .latency-display {
+    display: none !important;
+}
 
+/* Memperbesar Nama Perangkat saat Zoom Jauh */
+.hide-latency .device-title {
+    font-size: 40px !important; /* Ukuran besar agar terlihat saat zoom 20% */
+    white-space: normal !important; /* Agar teks tidak terpotong (truncate) */
+    word-break: break-word !important; /* Sangat penting agar teks tidak keluar kartu saat besar */
+    line-height: 1 !important;
+    text-align: center !important;
+}
+
+/* Memperbesar Kode Stasiun (Identity Label) */
+.hide-latency .floating-identity {
+    font-size: 70px !important;
+    padding: 4px 12px !important;
+    font-weight: 900 !important;
+    color: #1e293b !important;
+    border: 2px solid #cbd5e1 !important;
+    z-index: 50 !important;
+}
+
+
+/* Sembunyikan elemen dekorasi kecil yang tidak perlu saat zoom jauh */
+.hide-latency .device-leds, 
+.hide-latency .action-buttons,
+.hide-latency .status-text {
+    display: none !important;
+}
 
 /* === FLOATING IDENTITY LABEL === */
 .floating-identity {
@@ -871,6 +901,13 @@ body {
     color: #0f172a;
     margin-bottom: 4px;
     line-height: 1.2;
+    white-space: normal !important; /* Memaksa teks turun ke bawah, bukan satu baris */
+    overflow: visible !important;  /* Memastikan teks tidak tersembunyi */
+    text-overflow: clip !important; /* Menghilangkan efek titik-titik (...) */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-break: break-word; /* Memutus kata jika terlalu panjang agar tidak keluar kartu */
+    line-height: 1.2 !important;
 }
 
 .device-type {

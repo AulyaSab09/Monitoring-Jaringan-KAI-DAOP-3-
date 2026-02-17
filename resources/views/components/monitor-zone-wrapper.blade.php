@@ -7,8 +7,7 @@
 
 {{-- MAIN WRAPPER: Flex Row (2 Independent Columns) --}}
 {{-- items-start ensures top of Regular Chain aligns with top of Terminal (since Utara is absolute/negative margin) --}}
-<div class="relative w-full min-h-full p-10 flex flex-row gap-8 items-start justify-start pt-40">
-    {{-- pt-40 gives space for the Absolute Utara component above --}}
+<div class="relative w-fit min-w-full min-h-full p-10 flex flex-row gap-0 items-start justify-start pt-40">    {{-- pt-40 gives space for the Absolute Utara component above --}}
 
     {{-- COL 1: Regular Center Chain --}}
     @if ($regularCenters->count() > 0)

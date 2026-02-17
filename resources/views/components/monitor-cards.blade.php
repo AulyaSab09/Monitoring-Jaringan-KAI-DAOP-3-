@@ -178,9 +178,9 @@
 
                     {{-- DEVICE INFO - REVISED VERSION --}}
                     <div class="mb-4 px-6 text-center md:text-left">
-                        <h3 class="device-title {{ $nameSizeClass }} font-black truncate leading-tight" title="{{ $monitor->name }}">
-                            {{ $monitor->name }}
-                        </h3>
+                        <h3 class="device-title {{ $nameSizeClass }} font-black leading-tight" title="{{ $monitor->name }}">
+    {{ $monitor->name }}
+</h3>
                         <p class="device-type text-[10px] font-black uppercase tracking-[0.2em] opacity-70 mt-1">
                             {{ strtoupper($monitor->type) }}
                         </p>
@@ -188,12 +188,13 @@
 
                     {{-- LATENCY DISPLAY (Berubah warna sesuai status) --}}
                     {{-- LATENCY DISPLAY - REVISED (Hapus variabel $s['text']) --}}
-                    <div class="latency-display mx-4 {{ $s['bg'] }} border {{ $latencyAnimClass }} {{ $statusBorderClass }}">
-                        <span id="latency-val-{{ $monitor->id }}" class="latency-value font-black">
-                            {{ $monitor->latency }}
-                        </span>
-                        <span class="latency-unit font-bold">ms</span>
-                    </div>
+                    {{-- LATENCY DISPLAY (Disembunyikan otomatis saat zoom menjauh/Fit) --}}
+<div class="latency-display mx-4 {{ $s['bg'] }} border {{ $latencyAnimClass }} {{ $statusBorderClass }} transition-all duration-300">
+    <span id="latency-val-{{ $monitor->id }}" class="latency-value font-black">
+        {{ $monitor->latency }}
+    </span>
+    <span class="latency-unit font-bold">ms</span>
+</div>
 
                     {{-- ACTION BUTTONS --}}
                     <div class="flex justify-end gap-3 mt-4 px-4 pb-4">
